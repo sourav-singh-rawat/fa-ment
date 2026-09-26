@@ -4,6 +4,7 @@ import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 
 abstract class PaymentRepository {
+  const PaymentRepository._();
   factory PaymentRepository.local() => LocalPaymentRepositoryImpl();
 
   Future<void> save(Payment payment);

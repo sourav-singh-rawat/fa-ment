@@ -1,1 +1,3 @@
-abstract class Module<T> {}
+abstract class Module<T> {
+  const Module();
+}
