@@ -1,12 +1,12 @@
-import 'package:fave/features/payment/data/i.payment_gateway.dart'
-    show PaymentGatewayImpl;
+import 'package:fave/features/payment/data/i.sdk_payment_gateway.dart'
+    show SDKPaymentGatewayImpl;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show PaymentStatus;
 
 abstract class PaymentGateway {
   const PaymentGateway._();
 
-  factory PaymentGateway() => PaymentGatewayImpl();
+  factory PaymentGateway() => SDKPaymentGatewayImpl();
 
   Future<String> create(String key);
 

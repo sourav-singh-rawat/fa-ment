@@ -13,9 +13,9 @@ import 'package:fave_fake_backend/fave_fake_backend.dart'
     as bd
     show PaymentBackend, FakePaymentBackend, PaymentStatus;
 
-class PaymentGatewayImpl implements PaymentGateway {
+class SDKPaymentGatewayImpl implements PaymentGateway {
   final bd.PaymentBackend _backend;
-  PaymentGatewayImpl({bd.PaymentBackend? backend})
+  SDKPaymentGatewayImpl({bd.PaymentBackend? backend})
     : _backend = backend ?? bd.FakePaymentBackend();
 
   @override
