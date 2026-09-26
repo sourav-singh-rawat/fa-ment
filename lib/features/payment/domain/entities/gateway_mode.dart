@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 enum GatewayModeType {
   /// pending, pending, success.
   success,
@@ -18,7 +20,7 @@ enum GatewayModeType {
   lateSuccess,
 }
 
-class GatewayMode {
+class GatewayMode extends Equatable {
   final GatewayModeType type;
   final String title;
   final String description;
@@ -28,4 +30,7 @@ class GatewayMode {
     required this.title,
     required this.description,
   });
+
+  @override
+  List<Object?> get props => [type];
 }
