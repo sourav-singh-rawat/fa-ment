@@ -1,16 +1,16 @@
-import 'package:fave/features/payment/data/i.sdk_payment_gateway.dart'
-    show SDKPaymentGatewayImpl;
+import 'package:fave/features/payment/data/i.fake_payment_gateway.dart'
+    show FakePaymentGatewayImpl;
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
-    show GatewayMode;
+    show GatewayModeType;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show PaymentStatus;
 
 abstract class PaymentGateway {
   const PaymentGateway._();
 
-  factory PaymentGateway() => SDKPaymentGatewayImpl();
+  factory PaymentGateway() => FakePaymentGatewayImpl();
 
-  set mode(GatewayMode mode);
+  set mode(GatewayModeType mode);
 
   Future<String> create(String key);
 

@@ -1,4 +1,4 @@
-enum GatewayMode {
+enum GatewayModeType {
   /// pending, pending, success.
   success,
 
@@ -16,4 +16,16 @@ enum GatewayMode {
 
   /// B4 — pending, failed; then a push saying success, [lateSuccessDelay] later.
   lateSuccess,
+}
+
+class GatewayMode {
+  final GatewayModeType type;
+  final String title;
+  final String description;
+
+  const new({
+    required this.type,
+    required this.title,
+    required this.description,
+  });
 }

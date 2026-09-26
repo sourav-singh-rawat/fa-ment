@@ -1,7 +1,7 @@
 import 'dart:developer' show log;
 
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
-    show GatewayMode;
+    show GatewayModeType;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show
         PaymentStatus,
@@ -15,13 +15,13 @@ import 'package:fave_fake_backend/fave_fake_backend.dart'
     as bd
     show PaymentBackend, FakePaymentBackend, PaymentStatus, BackendMode;
 
-class SDKPaymentGatewayImpl implements PaymentGateway {
+class FakePaymentGatewayImpl implements PaymentGateway {
   final bd.PaymentBackend _backend;
-  SDKPaymentGatewayImpl({bd.PaymentBackend? backend})
+  FakePaymentGatewayImpl({bd.PaymentBackend? backend})
     : _backend = backend ?? bd.FakePaymentBackend();
 
   @override
-  set mode(GatewayMode mode) {
+  set mode(GatewayModeType mode) {
     (_backend as bd.FakePaymentBackend).mode = mode.toBackendMode;
   }
 
@@ -49,20 +49,20 @@ class SDKPaymentGatewayImpl implements PaymentGateway {
   }
 }
 
-extension on GatewayMode {
+extension on GatewayModeType {
   bd.BackendMode get toBackendMode {
     switch (this) {
-      case GatewayMode.success:
+      case GatewayModeType.success:
         return bd.BackendMode.success;
-      case GatewayMode.declined:
+      case GatewayModeType.declined:
         return bd.BackendMode.declined;
-      case GatewayMode.lostResponse:
+      case GatewayModeType.lostResponse:
         return bd.BackendMode.lostResponse;
-      case GatewayMode.pendingForever:
+      case GatewayModeType.pendingForever:
         return bd.BackendMode.pendingForever;
-      case GatewayMode.flipAfterSuccess:
+      case GatewayModeType.flipAfterSuccess:
         return bd.BackendMode.flipAfterSuccess;
-      case GatewayMode.lateSuccess:
+      case GatewayModeType.lateSuccess:
         return bd.BackendMode.lateSuccess;
     }
   }
