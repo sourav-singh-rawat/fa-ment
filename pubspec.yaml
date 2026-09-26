@@ -38,6 +38,7 @@ dependencies:
   sqflite: ^2.4.4
   fave_fake_backend:
     path: ../fave_fake_backend
+  uuid: ^4.6.0
 
 dev_dependencies:
   flutter_test:
