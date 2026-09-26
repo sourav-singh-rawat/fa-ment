@@ -3,6 +3,8 @@ import 'dart:async' show Timer;
 abstract interface class TaskScheduler {
   factory TaskScheduler() => _TaskSchedulerImpl();
 
+  void scheduleOnce(String taskId, Duration duration, void Function() callback);
+
   void schedulePeriodic(
     String taskId,
     Duration interval,
@@ -16,6 +18,19 @@ abstract interface class TaskScheduler {
 
 class _TaskSchedulerImpl implements TaskScheduler {
   final Map<String, Timer> _timers = {};
+
+  @override
+  void scheduleOnce(
+    String taskId,
+    Duration duration,
+    void Function() callback,
+  ) {
+    _timers[taskId]?.cancel();
+    _timers[taskId] = Timer(duration, () {
+      _timers.remove(taskId);
+      callback();
+    });
+  }
 
   @override
   void schedulePeriodic(
