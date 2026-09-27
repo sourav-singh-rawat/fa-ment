@@ -14,3 +14,12 @@ final class CreateSucceeded extends PaymentFlowEvent {
   final Payment paymentAttempt;
   const CreateSucceeded(this.paymentAttempt);
 }
+
+final class TerminalStatus extends PaymentFlowEvent {
+  final PaymentStatus status;
+  const TerminalStatus(this.status);
+}
+
+final class ConfirmingDeadlineReached extends PaymentFlowEvent {
+  ConfirmingDeadlineReached();
+}
