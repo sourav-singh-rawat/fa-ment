@@ -87,8 +87,8 @@ class _ProgressIndicatorState extends State<_ProgressIndicator>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 100,
-      height: 100,
+      width: 200,
+      height: 200,
       child: Stack(
         alignment: Alignment.center,
         children: [
