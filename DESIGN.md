@@ -1,7 +1,7 @@
 
 # Design notes
 
-> Work in progress: Done basic UI for testing flows, finishing the UI & polish and pushing the code to the repository. Sorry for the delay—I’ll have it up soon.
+> Work in progress: Done basic UI for testing flows, finishing the UI and pushing the code to the repository, within Monday first-half. Sorry for the delay—(I’ll have it up soon, was dealing some personal issues, reported Siva).
 
 ## State machine
 
