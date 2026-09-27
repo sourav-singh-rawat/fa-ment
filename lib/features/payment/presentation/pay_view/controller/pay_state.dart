@@ -4,9 +4,9 @@ class PayState extends Equatable {
   final String? key;
   final GatewayMode backendMode;
   final Recipient recipient;
-  final Valid<String> amount;
+  final ValidState<String> amount;
   final String? note;
-  final Status<Payment> createPaymentStatus;
+  final AsyncState<Payment> createPaymentStatus;
   const PayState({
     this.key,
     required this.backendMode,
@@ -20,17 +20,17 @@ class PayState extends Equatable {
     : this(
         backendMode: SeededGatewayModes.defaultMode,
         recipient: SeededRecipients.defaultRecipient,
-        amount: Valid.init(''),
-        createPaymentStatus: Status.idle(),
+        amount: ValidState.init(''),
+        createPaymentStatus: AsyncState.idle(),
       );
 
   PayState copyWith({
     String? key,
     GatewayMode? backendMode,
     Recipient? recipient,
-    Valid<String>? amount,
+    ValidState<String>? amount,
     String? note,
-    Status<Payment>? createPaymentStatus,
+    AsyncState<Payment>? createPaymentStatus,
   }) {
     return PayState(
       key: key,
