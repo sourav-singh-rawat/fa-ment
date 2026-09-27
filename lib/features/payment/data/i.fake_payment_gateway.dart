@@ -5,10 +5,10 @@ import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show
         PaymentStatus,
-        PaymentConfirming,
         PaymentSuccess,
         PaymentFailed,
-        PaymentUnresolved;
+        PaymentUnresolved,
+        PaymentPending;
 import 'package:fave/features/payment/domain/payment_gateway.dart'
     show PaymentGateway;
 import 'package:fave_fake_backend/fave_fake_backend.dart'
@@ -73,7 +73,7 @@ extension on bd.PaymentStatus {
     try {
       switch (this) {
         case bd.PaymentStatus.pending:
-          return PaymentConfirming();
+          return PaymentPending();
         case bd.PaymentStatus.success:
           return PaymentSuccess();
         case bd.PaymentStatus.failed:
