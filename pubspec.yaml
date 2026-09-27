@@ -39,6 +39,8 @@ dependencies:
   fave_fake_backend:
     path: ../fave_fake_backend
   uuid: ^4.6.0
+  rxdart: ^0.28.0
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:
