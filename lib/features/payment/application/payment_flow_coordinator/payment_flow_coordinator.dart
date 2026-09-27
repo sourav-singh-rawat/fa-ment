@@ -51,6 +51,7 @@ class PaymentFlowCoordinator {
     _statusUpdatesSubscription?.cancel();
     _scheduler.cancelAll();
     _statusSubject.close();
+    _activeKey = null;
   }
 
   Stream<PaymentFlowEvent> get events => _paymentEvents.stream;
