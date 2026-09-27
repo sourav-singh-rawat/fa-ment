@@ -1,17 +1,31 @@
+library pay_view;
+
 import 'package:auto_route/annotations.dart' show RoutePage;
 import 'package:auto_route/auto_route.dart' show AutoRouterX;
 import 'package:fave/features/payment/application/payment_flow_coordinator/payment_flow_coordinator.dart'
     show PaymentFlowCoordinator;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
+import 'package:fave/features/payment/domain/payment_repository.dart'
+    show PaymentRepository;
 import 'package:fave/features/payment/presentation/pay_view/controller/pay_cubit.dart'
     show PayCubit, PayState;
 import 'package:fave/shared/modules/router/i.router.gr.dart'
     show PaymentConfirmingRoute;
-import 'package:fave/shared/utils/status.dart';
+import 'package:fave/shared/utils/async_state.dart'
+    show
+        AsyncState,
+        AsyncLoading,
+        AsyncSuccess,
+        AsyncFailure,
+        AsyncIdle,
+        AsyncPartial;
+import 'package:fave/shared/utils/async_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
-    show BlocProvider, ReadContext, BlocListener;
+    show BlocProvider, ReadContext, BlocListener, BlocSelector;
+
+part 'widgets/recent_transaction.dart';
 
 @RoutePage()
 class PayView extends StatelessWidget {
@@ -20,45 +34,83 @@ class PayView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PayCubit(context.read<PaymentFlowCoordinator>()),
-      child: BlocListener<PayCubit, PayState>(
-        listener: (context, state) {
-          final status = state.createPaymentStatus;
-          switch (status) {
-            case Loading():
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Loading')));
-            case Failure():
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(status.error ?? 'Error!!!!!!')),
-              );
-            case Success<Payment>():
-              context.navigateTo(
-                PaymentConfirmingRoute(paymentAttempt: status.data!),
-              );
-            default:
-              return;
-          }
-        },
-        child: Scaffold(
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  context.read<PayCubit>().onChangeAmount(value);
-                },
+      create: (context) => PayCubit(
+        paymentFlowCoordinator: context.read<PaymentFlowCoordinator>(),
+        paymentRepository: context.read<PaymentRepository>(),
+      )..fetchRecentTransactions(),
+      child: _SideEffects(
+        child: Builder(
+          builder: (context) {
+            return Scaffold(
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 12,
+                children: [
+                  TextField(
+                    onChanged: (value) {
+                      context.read<PayCubit>().onChangeAmount(value);
+                    },
+                  ),
+                  _RecentTransactionList(),
+                  BlocSelector<PayCubit, PayState, AsyncState<Payment>>(
+                    selector: (state) => state.createPaymentState,
+                    builder: (context, createPaymentState) {
+                      final isDisabled =
+                          createPaymentState == AsyncLoading<Payment>();
+                      return ElevatedButton(
+                        onPressed: isDisabled
+                            ? null
+                            : () {
+                                context.read<PayCubit>().onPressPay();
+                              },
+                        child: Text("Pay now"),
+                      );
+                    },
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () {
-                  context.read<PayCubit>().onPressPay();
-                },
-                child: Text("Pay now"),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
+    );
+  }
+}
+
+class _SideEffects extends StatelessWidget {
+  final Widget child;
+
+  const _SideEffects({super.key, required this.child});
+
+  void navigateToConfirmView(BuildContext context, Payment payment) {
+    context.navigateTo(PaymentConfirmingRoute(paymentAttempt: payment));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<PayCubit, PayState>(
+      listener: (context, state) {
+        final status = state.createPaymentState;
+        switch (status) {
+          // case AsyncLoading():
+          //   ScaffoldMessenger.of(context)
+          //       .showSnackBar(SnackBar(content: Text('Loading')));
+          //   break;
+          case AsyncFailure():
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(status.error ?? 'Error!!!!!!')),
+            );
+            break;
+          case AsyncPartial<Payment>():
+            return navigateToConfirmView(context, status.data!);
+          case AsyncSuccess<Payment>():
+            return navigateToConfirmView(context, status.data!);
+          default:
+            return;
+        }
+      },
+      child: child,
     );
   }
 }

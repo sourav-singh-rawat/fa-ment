@@ -7,7 +7,8 @@ import 'package:fave/features/payment/domain/payment_repository.dart';
 import 'package:fave/shared/modules/id_generator/id_generator.dart';
 import 'package:fave/shared/modules/task_scheduler/task_scheduler.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart' show RepositoryProvider;
+import 'package:flutter_bloc/flutter_bloc.dart'
+    show RepositoryProvider, ReadContext;
 
 @RoutePage()
 class PaymentView extends StatelessWidget {
@@ -15,15 +16,18 @@ class PaymentView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (_) => PaymentFlowCoordinator(
-        keyGenerator: IdGenerator.uuid(),
-        repository: PaymentRepository.local(),
-        gateway: PaymentGateway(),
-        scheduler: TaskScheduler(),
+    return RepositoryProvider<PaymentRepository>(
+      create: (_) => PaymentRepository.local(),
+      child: RepositoryProvider(
+        create: (context) => PaymentFlowCoordinator(
+          keyGenerator: IdGenerator.uuid(),
+          repository: context.read<PaymentRepository>(),
+          gateway: PaymentGateway(),
+          scheduler: TaskScheduler(),
+        ),
+        dispose: (repo) => repo.dispose(),
+        child: AutoRouter(),
       ),
-      dispose: (repo) => repo.dispose(),
-      child: AutoRouter(),
     );
   }
 }
