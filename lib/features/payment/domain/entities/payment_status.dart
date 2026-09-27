@@ -4,8 +4,8 @@ sealed class PaymentStatus {
   PaymentStatus({DateTime? updatedAt})
     : updatedAt = updatedAt ?? DateTime.now();
 
-  factory PaymentStatus.fromJson(Map<String, dynamic> json) {
-    final type = json['type'] as String;
+  factory PaymentStatus.fromSqlJson(Map<String, dynamic> json) {
+    final type = json['status'] as String;
     final updatedAt = DateTime.parse(json['updatedAt'] as String);
 
     return switch (type) {
@@ -17,9 +17,9 @@ sealed class PaymentStatus {
     };
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toSqlJson() {
     return {
-      'type': runtimeType.toString(),
+      'status': runtimeType.toString(),
       'updatedAt': updatedAt.toIso8601String(),
     };
   }

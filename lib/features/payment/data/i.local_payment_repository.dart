@@ -24,13 +24,13 @@ class LocalPaymentRepositoryImpl implements PaymentRepository {
       PaymentCharacters.tableName,
       orderBy: orderBy,
     );
-    return result.map((json) => Payment.fromJson(json)).toList();
+    return result.map((json) => Payment.fromSqlJson(json)).toList();
   }
 
   @override
   Future<void> save(Payment payment) async {
     final db = await database;
-    await db.insert(PaymentCharacters.tableName, payment.toJson());
+    await db.insert(PaymentCharacters.tableName, payment.toSqlJson());
   }
 
   @override
@@ -38,7 +38,7 @@ class LocalPaymentRepositoryImpl implements PaymentRepository {
     final db = await database;
     await db.update(
       PaymentCharacters.tableName,
-      payment.toJson(),
+      payment.toSqlJson(),
       where: "id = ?",
       whereArgs: [payment.id],
     );
@@ -57,14 +57,15 @@ class LocalPaymentRepositoryImpl implements PaymentRepository {
   Future<void> _createDatabase(Database db, int version) async {
     await db.execute('''
         CREATE TABLE ${PaymentCharacters.tableName} (
-          sn INTEGER AUTOINCREMENT,
-          ${PaymentCharacters.id} TEXT PRIMARY KEY,
+          sn INTEGER PRIMARY KEY autoincrement,
+          ${PaymentCharacters.id} TEXT NOT NULL,
           ${PaymentCharacters.serverId} TEXT,
           ${PaymentCharacters.recipientId} TEXT NOT NULL,
           ${PaymentCharacters.amount} INTEGER NOT NULL,
           ${PaymentCharacters.note} TEXT,
           ${PaymentCharacters.status} TEXT NOT NULL,
-          ${PaymentCharacters.createdAt} INTEGER NOT NULL
+          ${PaymentCharacters.updatedAt} TEXT NOT NULL,
+          ${PaymentCharacters.createdAt} TEXT NOT NULL
         )
       ''');
 

@@ -49,29 +49,31 @@ class Payment extends Equatable {
     );
   }
 
-  factory Payment.fromJson(Map<String, dynamic> json) {
+  factory Payment.fromSqlJson(Map<String, dynamic> json) {
     return Payment(
       id: json[PaymentCharacters.id] as String,
       serverId: json[PaymentCharacters.serverId] as String?,
       recipientId: json[PaymentCharacters.recipientId] as String,
       amount: json[PaymentCharacters.amount] as int,
       note: json[PaymentCharacters.note] as String?,
-      status: PaymentStatus.fromJson(
-        json[PaymentCharacters.status] as Map<String, dynamic>,
-      ),
+      status: PaymentStatus.fromSqlJson({
+        PaymentCharacters.status: json[PaymentCharacters.status] as String,
+        PaymentCharacters.updatedAt:
+            json[PaymentCharacters.updatedAt] as String,
+      }),
       createdAt: DateTime.parse(json[PaymentCharacters.createdAt] as String),
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toSqlJson() {
     return {
       PaymentCharacters.id: id,
       PaymentCharacters.serverId: serverId,
       PaymentCharacters.recipientId: recipientId,
       PaymentCharacters.amount: amount,
       PaymentCharacters.note: note,
-      PaymentCharacters.status: status.toJson(),
       PaymentCharacters.createdAt: createdAt.toIso8601String(),
+      ...status.toSqlJson(),
     };
   }
 
@@ -96,5 +98,6 @@ class PaymentCharacters {
   static const amount = "amount";
   static const note = "note";
   static const status = "status";
+  static const updatedAt = "updatedAt";
   static const createdAt = "createdAt";
 }
