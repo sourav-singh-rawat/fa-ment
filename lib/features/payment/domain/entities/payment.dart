@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
-    show PaymentStatus, PaymentSending;
+    show PaymentStatus, PaymentPending;
 
 class Payment extends Equatable {
   final String id;
@@ -32,7 +32,7 @@ class Payment extends Equatable {
       recipientId: recipientId,
       amount: amount,
       note: note,
-      status: PaymentSending(),
+      status: PaymentPending(),
       createdAt: DateTime.now(),
     );
   }
@@ -49,34 +49,6 @@ class Payment extends Equatable {
     );
   }
 
-  factory Payment.fromSqlJson(Map<String, dynamic> json) {
-    return Payment(
-      id: json[PaymentCharacters.id] as String,
-      serverId: json[PaymentCharacters.serverId] as String?,
-      recipientId: json[PaymentCharacters.recipientId] as String,
-      amount: json[PaymentCharacters.amount] as int,
-      note: json[PaymentCharacters.note] as String?,
-      status: PaymentStatus.fromSqlJson({
-        PaymentCharacters.status: json[PaymentCharacters.status] as String,
-        PaymentCharacters.updatedAt:
-            json[PaymentCharacters.updatedAt] as String,
-      }),
-      createdAt: DateTime.parse(json[PaymentCharacters.createdAt] as String),
-    );
-  }
-
-  Map<String, dynamic> toSqlJson() {
-    return {
-      PaymentCharacters.id: id,
-      PaymentCharacters.serverId: serverId,
-      PaymentCharacters.recipientId: recipientId,
-      PaymentCharacters.amount: amount,
-      PaymentCharacters.note: note,
-      PaymentCharacters.createdAt: createdAt.toIso8601String(),
-      ...status.toSqlJson(),
-    };
-  }
-
   @override
   List<Object?> get props => [
     id,
@@ -87,17 +59,4 @@ class Payment extends Equatable {
     status,
     createdAt,
   ];
-}
-
-class PaymentCharacters {
-  const PaymentCharacters._();
-  static const tableName = "Payments";
-  static const id = "id";
-  static const serverId = "serverId";
-  static const recipientId = "recipientId";
-  static const amount = "amount";
-  static const note = "note";
-  static const status = "status";
-  static const updatedAt = "updatedAt";
-  static const createdAt = "createdAt";
 }
