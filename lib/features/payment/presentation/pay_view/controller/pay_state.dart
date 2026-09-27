@@ -6,14 +6,14 @@ class PayState extends Equatable {
   final Recipient recipient;
   final Valid<String> amount;
   final String? note;
-  final CreatePaymentStatus status;
+  final Status createPaymentStatus;
   const PayState({
     this.key,
     required this.backendMode,
     required this.recipient,
     required this.amount,
     this.note,
-    required this.status,
+    required this.createPaymentStatus,
   });
 
   PayState.init()
@@ -21,7 +21,7 @@ class PayState extends Equatable {
         backendMode: SeededGatewayModes.defaultMode,
         recipient: SeededRecipients.defaultRecipient,
         amount: Valid.init(''),
-        status: CreatePaymentStatus.idle,
+        createPaymentStatus: Status.idle(),
       );
 
   PayState copyWith({
@@ -30,7 +30,7 @@ class PayState extends Equatable {
     Recipient? recipient,
     Valid<String>? amount,
     String? note,
-    CreatePaymentStatus? status,
+    Status? createPaymentStatus,
   }) {
     return PayState(
       key: key,
@@ -38,12 +38,15 @@ class PayState extends Equatable {
       recipient: recipient ?? this.recipient,
       amount: amount ?? this.amount,
       note: note ?? this.note,
-      status: status ?? this.status,
+      createPaymentStatus: createPaymentStatus ?? this.createPaymentStatus,
     );
   }
 
   @override
-  List<Object> get props => [backendMode, recipient, amount, status];
+  List<Object> get props => [
+    backendMode,
+    recipient,
+    amount,
+    createPaymentStatus,
+  ];
 }
-
-enum CreatePaymentStatus { idle, sending }

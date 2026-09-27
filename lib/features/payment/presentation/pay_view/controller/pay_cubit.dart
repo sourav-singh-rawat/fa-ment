@@ -18,6 +18,7 @@ import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/domain/entities/recipient.dart'
     show Recipient;
+import 'package:fave/shared/utils/status.dart' show Status;
 import 'package:fave/shared/utils/valid_type.dart';
 
 part 'pay_state.dart';
@@ -54,9 +55,8 @@ class PayCubit extends Cubit<PayState> {
   }
 
   void onPressPay() {
-    if (_attempt != null) {
-      return _onCheckStatus();
-    }
+    if (_attempt != null) return _onCheckStatus(_attempt!);
+
     return _onCreatePayment();
   }
 
@@ -64,7 +64,7 @@ class PayCubit extends Cubit<PayState> {
     try {
       final parsed = int.tryParse(state.amount.value);
 
-      emit(state.copyWith(status: .sending));
+      emit(state.copyWith(createPaymentStatus: Status.loading()));
 
       _paymentFlowCoordinator.createPayment(
         recipientId: state.recipient.id,
@@ -72,12 +72,16 @@ class PayCubit extends Cubit<PayState> {
         note: state.note,
       );
     } catch (error) {
-      //TODO: throw snack-bar event
+      emit(
+        state.copyWith(
+          createPaymentStatus: Status.failure(error: error.toString()),
+        ),
+      );
     }
   }
 
-  void _onCheckStatus() {
-    //TODO: throw navigation with attempt
+  void _onCheckStatus(Payment attempt) {
+    emit(state.copyWith(createPaymentStatus: Status.success(data: attempt)));
   }
 
   void _listenPaymentFlowEvents(PaymentFlowEvent event) {
@@ -92,14 +96,13 @@ class PayCubit extends Cubit<PayState> {
   }
 
   void _onCreatePaymentTimeout(Payment attempt, String error) {
-    emit(state.copyWith(status: .idle));
+    emit(state.copyWith(createPaymentStatus: Status.failure(error: error)));
     _attempt = attempt;
-    //TODO: throw snack-bar event
   }
 
   void _onCreatePaymentSucceeded(Payment attempt) {
+    emit(state.copyWith(createPaymentStatus: Status.success(data: attempt)));
     _attempt = attempt;
-    //TODO: throw navigation event
   }
 
   @override
