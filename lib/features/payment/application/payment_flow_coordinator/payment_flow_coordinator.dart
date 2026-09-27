@@ -1,6 +1,9 @@
 import 'dart:async' show StreamSubscription, StreamController;
 
-import 'package:fave/features/payment/domain/entities/payment.dart';
+import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
+    show GatewayModeType;
+import 'package:fave/features/payment/domain/entities/payment.dart'
+    show Payment;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show PaymentStatus;
 import 'package:fave/features/payment/domain/payment_gateway.dart'
@@ -47,6 +50,7 @@ class PaymentFlowCoordinator {
   Stream<PaymentFlowEvent> get events => _paymentEvents.stream;
 
   void createPayment({
+    required GatewayModeType backendMode,
     required String recipientId,
     required int amount,
     String? note,
@@ -69,6 +73,7 @@ class PaymentFlowCoordinator {
     });
 
     try {
+      _gateway.mode = backendMode;
       final serverId = await _gateway.create(key);
       _scheduler.cancel('create-timeout-$key');
 

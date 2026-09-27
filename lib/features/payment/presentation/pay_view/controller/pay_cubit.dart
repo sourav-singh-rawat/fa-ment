@@ -90,6 +90,7 @@ class PayCubit extends Cubit<PayState> {
       emit(state.copyWith(createPaymentState: AsyncState.loading()));
 
       _paymentFlowCoordinator.createPayment(
+        backendMode: state.backendMode.type,
         recipientId: state.recipient.id,
         amount: parsed!,
         note: state.note,
