@@ -6,7 +6,7 @@ class PayState extends Equatable {
   final Recipient recipient;
   final Valid<String> amount;
   final String? note;
-  final Status createPaymentStatus;
+  final Status<Payment> createPaymentStatus;
   const PayState({
     this.key,
     required this.backendMode,
@@ -30,7 +30,7 @@ class PayState extends Equatable {
     Recipient? recipient,
     Valid<String>? amount,
     String? note,
-    Status? createPaymentStatus,
+    Status<Payment>? createPaymentStatus,
   }) {
     return PayState(
       key: key,

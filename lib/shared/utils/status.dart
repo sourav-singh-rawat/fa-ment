@@ -1,4 +1,4 @@
-sealed class Status {
+sealed class Status<T> {
   const Status();
 
   factory Status.idle() => Idle();
@@ -8,24 +8,24 @@ sealed class Status {
   factory Status.success({dynamic data}) => Success(data: data);
 }
 
-final class Idle extends Status {}
+final class Idle<T> extends Status<T> {}
 
-final class Loading extends Status {
+final class Loading<T> extends Status<T> {
   final num? value;
   const Loading({this.value});
 }
 
-final class Failure extends Status {
+final class Failure<T> extends Status<T> {
   final String? error;
   const Failure({this.error});
 }
 
-final class Partial<T> extends Status {
+final class Partial<T> extends Status<T> {
   final T? data;
   const Partial({this.data});
 }
 
-final class Success<T> extends Status {
+final class Success<T> extends Status<T> {
   final T? data;
   const Success({this.data});
 }
