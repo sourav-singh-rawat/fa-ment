@@ -1,19 +1,3 @@
-// test/payment/seeded_gateway_modes_test.dart
-//
-// Covers all six SeededGatewayModes end-to-end through PaymentFlowCoordinator,
-// and their downstream effects on PayCubit / PaymentConfirmCubit.
-//
-// Test doubles:
-//  - FakeGateway: an in-memory PaymentGateway that mimics FakePaymentGatewayImpl's
-//    behavior per GatewayModeType, driven by a script instead of real timers,
-//    so tests stay deterministic without depending on the real fake backend.
-//  - MockPaymentRepository (mocktail)
-//  - MockIdGenerator (mocktail)
-//  - MockTaskScheduler: a fake TaskScheduler that lets tests manually fire
-//    scheduled callbacks instead of waiting on real Timers.
-//
-// Packages assumed: flutter_test, bloc_test, mocktail, fake_async.
-
 import 'dart:async';
 
 import 'package:fake_async/fake_async.dart';
