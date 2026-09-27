@@ -6,14 +6,16 @@ class PayState extends Equatable {
   final Recipient recipient;
   final ValidState<String> amount;
   final String? note;
-  final AsyncState<Payment> createPaymentStatus;
+  final AsyncState<List<Payment>> transactions;
+  final AsyncState<Payment> createPaymentState;
   const PayState({
     this.key,
     required this.backendMode,
     required this.recipient,
     required this.amount,
     this.note,
-    required this.createPaymentStatus,
+    required this.transactions,
+    required this.createPaymentState,
   });
 
   PayState.init()
@@ -21,7 +23,8 @@ class PayState extends Equatable {
         backendMode: SeededGatewayModes.defaultMode,
         recipient: SeededRecipients.defaultRecipient,
         amount: ValidState.init(''),
-        createPaymentStatus: AsyncState.idle(),
+        transactions: AsyncState.loading(),
+        createPaymentState: AsyncState.idle(),
       );
 
   PayState copyWith({
@@ -30,7 +33,8 @@ class PayState extends Equatable {
     Recipient? recipient,
     ValidState<String>? amount,
     String? note,
-    AsyncState<Payment>? createPaymentStatus,
+    AsyncState<List<Payment>>? transactions,
+    AsyncState<Payment>? createPaymentState,
   }) {
     return PayState(
       key: key,
@@ -38,7 +42,8 @@ class PayState extends Equatable {
       recipient: recipient ?? this.recipient,
       amount: amount ?? this.amount,
       note: note ?? this.note,
-      createPaymentStatus: createPaymentStatus ?? this.createPaymentStatus,
+      transactions: transactions ?? this.transactions,
+      createPaymentState: createPaymentState ?? this.createPaymentState,
     );
   }
 
@@ -47,6 +52,7 @@ class PayState extends Equatable {
     backendMode,
     recipient,
     amount,
-    createPaymentStatus,
+    transactions,
+    createPaymentState,
   ];
 }

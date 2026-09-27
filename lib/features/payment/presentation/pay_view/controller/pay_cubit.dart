@@ -18,6 +18,8 @@ import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/domain/entities/recipient.dart'
     show Recipient;
+import 'package:fave/features/payment/domain/payment_repository.dart'
+    show PaymentRepository;
 import 'package:fave/shared/utils/async_state.dart' show AsyncState;
 import 'package:fave/shared/utils/valid_state.dart';
 
@@ -25,14 +27,35 @@ part 'pay_state.dart';
 
 class PayCubit extends Cubit<PayState> {
   final PaymentFlowCoordinator _paymentFlowCoordinator;
+  final PaymentRepository _paymentRepository;
   late final StreamSubscription<PaymentFlowEvent> _paymentFlowEventSubscription;
-  PayCubit(this._paymentFlowCoordinator) : super(PayState.init()) {
+  PayCubit({
+    required this._paymentFlowCoordinator,
+    required this._paymentRepository,
+  }) : super(PayState.init()) {
     _paymentFlowEventSubscription = _paymentFlowCoordinator.events.listen(
       _listenPaymentFlowEvents,
     );
   }
 
   Payment? _attempt;
+
+  void fetchRecentTransactions() async {
+    try {
+      final transactions = await _paymentRepository.loadRecent();
+      emit(
+        state.copyWith(
+          transactions: AsyncState.success(data: transactions.take(2).toList()),
+        ),
+      );
+    } catch (error) {
+      emit(
+        state.copyWith(
+          transactions: AsyncState.failure(error: "Opps, Something went wrong"),
+        ),
+      );
+    }
+  }
 
   void onChangeBackendMode(GatewayMode mode) {
     emit(state.copyWith(backendMode: mode));
@@ -64,7 +87,7 @@ class PayCubit extends Cubit<PayState> {
     try {
       final parsed = int.tryParse(state.amount.value);
 
-      emit(state.copyWith(createPaymentStatus: AsyncState.loading()));
+      emit(state.copyWith(createPaymentState: AsyncState.loading()));
 
       _paymentFlowCoordinator.createPayment(
         recipientId: state.recipient.id,
@@ -74,16 +97,14 @@ class PayCubit extends Cubit<PayState> {
     } catch (error) {
       emit(
         state.copyWith(
-          createPaymentStatus: AsyncState.failure(error: error.toString()),
+          createPaymentState: AsyncState.failure(error: error.toString()),
         ),
       );
     }
   }
 
   void _onCheckStatus(Payment attempt) {
-    emit(
-      state.copyWith(createPaymentStatus: AsyncState.partial(data: attempt)),
-    );
+    emit(state.copyWith(createPaymentState: AsyncState.partial(data: attempt)));
   }
 
   void _listenPaymentFlowEvents(PaymentFlowEvent event) {
@@ -98,14 +119,12 @@ class PayCubit extends Cubit<PayState> {
   }
 
   void _onCreatePaymentTimeout(Payment attempt, String error) {
-    emit(state.copyWith(createPaymentStatus: AsyncState.failure(error: error)));
+    emit(state.copyWith(createPaymentState: AsyncState.failure(error: error)));
     _attempt = attempt;
   }
 
   void _onCreatePaymentSucceeded(Payment attempt) {
-    emit(
-      state.copyWith(createPaymentStatus: AsyncState.success(data: attempt)),
-    );
+    emit(state.copyWith(createPaymentState: AsyncState.success(data: attempt)));
     _attempt = attempt;
   }
 
