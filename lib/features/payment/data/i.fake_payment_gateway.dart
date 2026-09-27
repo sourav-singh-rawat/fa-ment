@@ -34,7 +34,7 @@ class FakePaymentGatewayImpl implements PaymentGateway {
       final status = await _backend.status(key);
       return status.toAppPaymentStatus;
     } catch (_) {
-      return PaymentFailed();
+      return PaymentUnresolved();
     }
   }
 
