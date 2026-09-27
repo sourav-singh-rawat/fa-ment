@@ -107,7 +107,7 @@ class LocalPaymentRepositoryImpl implements PaymentRepository {
 
 class _PaymentCharacters {
   const _PaymentCharacters._();
-  static const tableName = "Payments-fave";
+  static const tableName = "PaymentsFave";
   static const id = "id";
   static const serverId = "serverId";
   static const recipientId = "recipientId";
