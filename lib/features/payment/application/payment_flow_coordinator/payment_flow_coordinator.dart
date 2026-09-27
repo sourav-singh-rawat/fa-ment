@@ -73,15 +73,16 @@ class PaymentFlowCoordinator {
     });
 
     try {
+      await _repository.save(paymentAttempt);
+
       _gateway.mode = backendMode;
+
       final serverId = await _gateway.create(key);
       _scheduler.cancel('create-timeout-$key');
 
       paymentAttempt = paymentAttempt.copyWith(serverId: serverId);
 
       _dispatchEvent(CreateSucceeded(paymentAttempt));
-
-      await _repository.save(paymentAttempt);
     } catch (error) {
       _scheduler.cancel('create-timeout-$key');
       _dispatchEvent(CreateTimedOut(paymentAttempt, error: error.toString()));
