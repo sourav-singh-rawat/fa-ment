@@ -16,6 +16,8 @@ import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
     show GatewayMode;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
+import 'package:fave/features/payment/domain/entities/payment_status.dart'
+    show PaymentPending;
 import 'package:fave/features/payment/domain/entities/recipient.dart'
     show Recipient;
 import 'package:fave/features/payment/domain/payment_repository.dart'
@@ -42,12 +44,14 @@ class PayCubit extends Cubit<PayState> {
 
   void fetchRecentTransactions() async {
     try {
-      final transactions = await _paymentRepository.loadRecent();
+      List<Payment> transactions = await _paymentRepository.loadRecent();
+      transactions = transactions.take(2).toList();
+
       emit(
-        state.copyWith(
-          transactions: AsyncState.success(data: transactions.take(2).toList()),
-        ),
+        state.copyWith(transactions: AsyncState.success(data: transactions)),
       );
+
+      _updatePendingStatus(transactions);
     } catch (error) {
       emit(
         state.copyWith(
@@ -55,6 +59,24 @@ class PayCubit extends Cubit<PayState> {
         ),
       );
     }
+  }
+
+  void _updatePendingStatus(List<Payment> transactions) async {
+    for (var i = 0; i < transactions.length; i++) {
+      if (transactions[i].status is! PaymentPending) continue;
+
+      final status = await _paymentFlowCoordinator.requestStatus(
+        transactions[i].id,
+      );
+
+      transactions[i] = transactions[i].copyWith(status: status);
+      _paymentRepository.update(transactions[i]);
+    }
+
+    if (isClosed) return;
+    emit(
+      state.copyWith(transactions: AsyncState.success(data: [...transactions])),
+    );
   }
 
   void onChangeBackendMode(GatewayMode mode) {
