@@ -1,5 +1,3 @@
-import 'dart:developer' show log;
-
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
     show GatewayModeType;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
@@ -32,8 +30,12 @@ class FakePaymentGatewayImpl implements PaymentGateway {
 
   @override
   Future<PaymentStatus> status(String key) async {
-    final status = await _backend.status(key);
-    return status.toAppPaymentStatus;
+    try {
+      final status = await _backend.status(key);
+      return status.toAppPaymentStatus;
+    } catch (_) {
+      return PaymentFailed();
+    }
   }
 
   @override
@@ -70,19 +72,14 @@ extension on GatewayModeType {
 
 extension on bd.PaymentStatus {
   PaymentStatus get toAppPaymentStatus {
-    try {
-      switch (this) {
-        case bd.PaymentStatus.pending:
-          return PaymentPending();
-        case bd.PaymentStatus.success:
-          return PaymentSuccess();
-        case bd.PaymentStatus.failed:
-        case bd.PaymentStatus.refunded:
-          return PaymentFailed();
-      }
-    } catch (error) {
-      log(error.toString());
-      return PaymentUnresolved();
+    switch (this) {
+      case bd.PaymentStatus.pending:
+        return PaymentPending();
+      case bd.PaymentStatus.success:
+        return PaymentSuccess();
+      case bd.PaymentStatus.failed:
+      case bd.PaymentStatus.refunded:
+        return PaymentFailed();
     }
   }
 }
