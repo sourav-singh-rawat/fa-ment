@@ -6,6 +6,8 @@ import 'package:fave/features/payment/presentation/pay_view/controller/pay_cubit
     show PayCubit, PayState;
 import 'package:fave/features/payment/presentation/pay_view/widgets/recent_payment.dart'
     show RecentPaymentEmptyLabel, RecentPaymentRow;
+import 'package:fave/features/payment/presentation/widgets/inline_status_badge.dart'
+    show InlineBadgeKind;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart'
     show AsyncState, AsyncSuccess, AsyncPartial;
@@ -53,6 +55,11 @@ class RecentPaymentsSection extends StatelessWidget {
                   _ => record.status.toString(),
                 },
                 formattedAmount: record.amount.formatIndianRupees,
+                badge: switch (record.status) {
+                  PaymentPending() => InlineBadgeKind.checking,
+                  PaymentUnresolved() => InlineBadgeKind.unresolved,
+                  _ => null,
+                },
                 showTopDivider: !isFirstRecord,
               );
             }).toList(),
