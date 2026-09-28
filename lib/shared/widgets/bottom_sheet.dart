@@ -13,13 +13,13 @@ class FBottomSheet extends StatelessWidget {
   /// custom AnimationController is needed for the shell itself.
   static Future<T?> show<T>(
     BuildContext context, {
-    required Widget Function() builder,
+    required Widget Function(BuildContext context) builder,
   }) {
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => FBottomSheet(child: builder()),
+      builder: (context) => FBottomSheet(child: builder(context)),
     );
   }
 

@@ -1,0 +1,202 @@
+// enum BackendDebugMode {
+//   success,
+//   declined,
+//   lostResponse,
+//   pendingForever,
+//   flipAfterSuccess,
+//   lateSuccess,
+// }
+//
+// class _BackendModeCopy {
+//   final String title;
+//   final String description;
+//   const _BackendModeCopy(this.title, this.description);
+// }
+//
+// const _backendModeCopy = <BackendDebugMode, _BackendModeCopy>{
+//   BackendDebugMode.success: _BackendModeCopy(
+//     'Success',
+//     'pending, pending, success — about 4 s',
+//   ),
+//   BackendDebugMode.declined: _BackendModeCopy('Declined', 'pending, failed'),
+//   BackendDebugMode.lostResponse: _BackendModeCopy(
+//     'B1 · Lost response',
+//     'create hangs; status(key) says pending, then success',
+//   ),
+//   BackendDebugMode.pendingForever: _BackendModeCopy(
+//     'B2 · Pending forever',
+//     'pending, pending, pending…',
+//   ),
+//   BackendDebugMode.flipAfterSuccess: _BackendModeCopy(
+//     'B3 · Flip after success',
+//     'pending, success · push: failed, 300 ms later',
+//   ),
+//   BackendDebugMode.lateSuccess: _BackendModeCopy(
+//     'B4 · Late success',
+//     'pending, failed · push: success, 2 min later',
+//   ),
+// };
+
+import 'package:fave/features/payment/constant/gateway_modes.dart'
+    show SeededGatewayModes;
+import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
+    show GatewayMode;
+import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
+import 'package:fave/shared/widgets/bottom_sheet.dart' show FBottomSheet;
+import 'package:flutter/material.dart';
+
+typedef VoidSelectedCallback = void Function(
+  BuildContext context,
+  GatewayMode value,
+);
+
+class BackendBehaviourSheet extends StatelessWidget {
+  final GatewayMode selected;
+  final VoidSelectedCallback onSelected;
+
+  const BackendBehaviourSheet({
+    super.key,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  static Future<void> show(
+    BuildContext context, {
+    required GatewayMode selected,
+    required VoidSelectedCallback onSelected,
+  }) {
+    return FBottomSheet.show(
+      context,
+      builder: (context) =>
+          BackendBehaviourSheet(selected: selected, onSelected: onSelected),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final layout = context.layout;
+    final text = context.text;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Container(
+            width: layout.sheetGrabberSize.width,
+            height: layout.sheetGrabberSize.height,
+            decoration: BoxDecoration(
+              color: colors.sheetGrabber,
+              borderRadius: BorderRadius.circular(layout.sheetGrabberRadius),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Backend behaviour',
+          style: text.confirmingHeading.copyWith(
+            fontSize: 17,
+            height: 22 / 17,
+            letterSpacing: -0.2,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Pick before you tap Pay. Applies to the next attempt only. To '
+          'produce B5, background the app during Confirming in any mode.',
+          style: text.recentStatus.copyWith(fontSize: 12.5, height: 17 / 12.5),
+        ),
+        const SizedBox(height: 8),
+        for (final mode in SeededGatewayModes.all)
+          _ModeRow(
+            mode: mode,
+            isSelected: mode.type == selected.type,
+            onTap: () => onSelected(context, mode),
+          ),
+      ],
+    );
+  }
+}
+
+class _ModeRow extends StatelessWidget {
+  final GatewayMode mode;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ModeRow({
+    required this.mode,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final text = context.text;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _RadioDot(isSelected: isSelected, color: colors.link),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    mode.title,
+                    style: text.recipientName.copyWith(
+                      fontSize: 14,
+                      height: 19 / 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(mode.description, style: text.recentStatus),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _RadioDot extends StatelessWidget {
+  final bool isSelected;
+  final Color color;
+  const _RadioDot({required this.isSelected, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isSelected ? color : Colors.transparent,
+        border: isSelected
+            ? null
+            : Border.all(color: color.withValues(alpha: 0.4), width: 2),
+      ),
+      child: isSelected
+          ? Center(
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            )
+          : null,
+    );
+  }
+}
