@@ -31,6 +31,7 @@ class PaymentConfirmCubit extends Cubit<PaymentConfirmState> {
     );
   }
 
+  Payment get paymentAttempt => _paymentAttempt;
   DateTime get confirmingDeadlineAt => _deadlineAt;
 
   void startConfirming() {
