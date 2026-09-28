@@ -4,17 +4,23 @@ import 'package:auto_route/annotations.dart' show RoutePage;
 import 'package:auto_route/auto_route.dart' show AutoRouterX;
 import 'package:fave/features/payment/application/payment_flow_coordinator/payment_flow_coordinator.dart'
     show PaymentFlowCoordinator;
-import 'package:fave/features/payment/constant/gateway_modes.dart'
-    show SeededGatewayModes;
-import 'package:fave/features/payment/domain/entities/gateway_mode.dart';
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/domain/payment_repository.dart'
     show PaymentRepository;
 import 'package:fave/features/payment/presentation/pay_view/controller/pay_cubit.dart'
     show PayCubit, PayState;
+import 'package:fave/features/payment/presentation/pay_view/sections/pay_action_section.dart'
+    show PayActionSection;
+import 'package:fave/features/payment/presentation/pay_view/sections/pay_form_section.dart'
+    show PayFormSection;
+import 'package:fave/features/payment/presentation/pay_view/sections/pay_header_section.dart'
+    show PayHeaderSection;
+import 'package:fave/features/payment/presentation/pay_view/sections/recent_payments_section.dart'
+    show RecentPaymentsSection;
 import 'package:fave/shared/modules/router/i.router.gr.dart'
     show PaymentConfirmingRoute;
+import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart'
     show
         AsyncState,
@@ -26,7 +32,7 @@ import 'package:fave/shared/utils/async_state.dart'
 import 'package:fave/shared/utils/async_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
-    show BlocProvider, ReadContext, BlocListener, BlocSelector, BlocBuilder;
+    show BlocProvider, ReadContext, BlocListener, BlocSelector;
 
 part 'widgets/recent_transaction.dart';
 
@@ -41,63 +47,34 @@ class PayView extends StatelessWidget {
         paymentFlowCoordinator: context.read<PaymentFlowCoordinator>(),
         paymentRepository: context.read<PaymentRepository>(),
       )..fetchRecentTransactions(),
-      child: _SideEffects(
-        child: Builder(
-          builder: (context) {
-            return Scaffold(
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: 12,
-                children: [
-                  BlocSelector<PayCubit, PayState, GatewayMode>(
-                    selector: (state) => state.backendMode,
-                    builder: (context, backendMode) {
-                      return DropdownButton<GatewayMode>(
-                        value: backendMode,
-                        items: SeededGatewayModes.all
-                            .map<DropdownMenuItem<GatewayMode>>((mode) {
-                              return DropdownMenuItem<GatewayMode>(
-                                value: mode,
-                                child: Text(mode.title),
-                              );
-                            })
-                            .toList(),
-                        onChanged: (mode) {
-                          if (mode == null) return;
-                          context.read<PayCubit>().onChangeBackendMode(mode);
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(height: 24),
-                  TextField(
-                    onChanged: (value) {
-                      context.read<PayCubit>().onChangeAmount(value);
-                    },
-                    decoration: InputDecoration(hintText: 'Enter amount'),
-                  ),
-                  _RecentTransactionList(),
-                  BlocBuilder<PayCubit, PayState>(
-                    //TODO: buildWhen
-                    builder: (context, state) {
-                      final isDisabled =
-                          state.createPaymentState == AsyncLoading<Payment>() ||
-                          state.amount.value.isEmpty;
-                      return ElevatedButton(
-                        onPressed: isDisabled
-                            ? null
-                            : () {
-                                context.read<PayCubit>().onPressPay();
-                              },
-                        child: Text("Pay now"),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
+      child: const _SideEffects(child: _PayLayout()),
+    );
+  }
+}
+
+class _PayLayout extends StatelessWidget {
+  const _PayLayout();
+
+  @override
+  Widget build(BuildContext context) {
+    final layout = context.layout;
+    return Scaffold(
+      backgroundColor: context.colors.screenBackground,
+      body: SafeArea(
+        child: Padding(
+          padding: layout.screenPadding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const PayHeaderSection(),
+              SizedBox(height: layout.payBlockGap),
+              const PayFormSection(),
+              SizedBox(height: layout.payBlockGap),
+              const RecentPaymentsSection(),
+              const Spacer(),
+              const PayActionSection(),
+            ],
+          ),
         ),
       ),
     );
@@ -107,36 +84,83 @@ class PayView extends StatelessWidget {
 class _SideEffects extends StatelessWidget {
   final Widget child;
 
-  const _SideEffects({super.key, required this.child});
-
-  void navigateToConfirmView(BuildContext context, Payment payment) {
-    context.navigateTo(PaymentConfirmingRoute(paymentAttempt: payment));
-  }
+  const _SideEffects({required this.child});
 
   @override
   Widget build(BuildContext context) {
     return BlocListener<PayCubit, PayState>(
+      listenWhen: (previous, current) {
+        final previousPaymentState = previous.createPaymentState;
+        final currentPaymentState = current.createPaymentState;
+
+        final currentHasPayment =
+            currentPaymentState is AsyncPartial<Payment> ||
+            currentPaymentState is AsyncSuccess<Payment>;
+        final previousHadPayment =
+            previousPaymentState is AsyncPartial<Payment> ||
+            previousPaymentState is AsyncSuccess<Payment>;
+
+        final currentFailed = currentPaymentState is AsyncFailure;
+        final previousFailed = previousPaymentState is AsyncFailure;
+
+        return (currentHasPayment && !previousHadPayment) ||
+            (currentFailed && !previousFailed);
+      },
       listener: (context, state) {
-        final status = state.createPaymentState;
-        switch (status) {
-          // case AsyncLoading():
-          //   ScaffoldMessenger.of(context)
-          //       .showSnackBar(SnackBar(content: Text('Loading')));
-          //   break;
-          case AsyncFailure():
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(status.error ?? 'Error!!!!!!')),
+        final paymentState = state.createPaymentState;
+
+        switch (paymentState) {
+          case AsyncPartial<Payment>(:final data) when data != null:
+          case AsyncSuccess<Payment>(:final data) when data != null:
+            context.router.replace(
+              PaymentConfirmingRoute(paymentAttempt: data),
             );
-            break;
-          case AsyncPartial<Payment>():
-            return navigateToConfirmView(context, status.data!);
-          case AsyncSuccess<Payment>():
-            return navigateToConfirmView(context, status.data!);
+          case AsyncFailure(:final error):
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(error ?? 'Unable to start payment')),
+            );
           default:
-            return;
+            break;
         }
       },
       child: child,
     );
   }
 }
+
+// class _SideEffects extends StatelessWidget {
+//   final Widget child;
+//
+//   const _SideEffects({super.key, required this.child});
+//
+//   void navigateToConfirmView(BuildContext context, Payment payment) {
+//     context.navigateTo(PaymentConfirmingRoute(paymentAttempt: payment));
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocListener<PayCubit, PayState>(
+//       listener: (context, state) {
+//         final status = state.createPaymentState;
+//         switch (status) {
+//           // case AsyncLoading():
+//           //   ScaffoldMessenger.of(context)
+//           //       .showSnackBar(SnackBar(content: Text('Loading')));
+//           //   break;
+//           case AsyncFailure():
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               SnackBar(content: Text(status.error ?? 'Error!!!!!!')),
+//             );
+//             break;
+//           case AsyncPartial<Payment>():
+//             return navigateToConfirmView(context, status.data!);
+//           case AsyncSuccess<Payment>():
+//             return navigateToConfirmView(context, status.data!);
+//           default:
+//             return;
+//         }
+//       },
+//       child: child,
+//     );
+//   }
+// }
