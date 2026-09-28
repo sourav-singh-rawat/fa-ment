@@ -1,10 +1,10 @@
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:flutter/material.dart';
 
-class FaveBottomSheet extends StatelessWidget {
+class FBottomSheet extends StatelessWidget {
   final Widget child;
 
-  const FaveBottomSheet({super.key, required this.child});
+  const FBottomSheet({super.key, required this.child});
 
   /// Shows [child] inside the shared sheet shell using Flutter's own modal
   /// bottom sheet, which already provides the scrim, drag handle, and
@@ -19,7 +19,7 @@ class FaveBottomSheet extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => FaveBottomSheet(child: builder()),
+      builder: (context) => FBottomSheet(child: builder()),
     );
   }
 

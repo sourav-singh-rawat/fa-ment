@@ -2,17 +2,17 @@ import 'package:fave/shared/modules/theme/theme.dart'
     show FThemeContext, FFontsAwareLinkStyle;
 import 'package:flutter/material.dart';
 
-enum FaveLinkVariant { active, disabled }
+enum FLinkVariant { active, disabled }
 
-class FaveTextLink extends StatelessWidget {
+class FTextLink extends StatelessWidget {
   final String label;
-  final FaveLinkVariant variant;
+  final FLinkVariant variant;
   final VoidCallback? onTap;
 
-  const FaveTextLink({
+  const FTextLink({
     super.key,
     required this.label,
-    this.variant = FaveLinkVariant.active,
+    this.variant = FLinkVariant.active,
     this.onTap,
   });
 
@@ -20,7 +20,7 @@ class FaveTextLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    if (variant == FaveLinkVariant.disabled) {
+    if (variant == FLinkVariant.disabled) {
       return Text(
         label,
         style: context.text.checkingLink, // 14/Medium, secondary, no underline
