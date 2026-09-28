@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart' show Equatable;
+import 'package:fave/features/payment/constant/gateway_modes.dart';
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
-    show GatewayMode;
+    show GatewayModeType;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/presentation/pay_view/controller/pay_cubit.dart'
@@ -24,8 +25,11 @@ class PayHeaderSection extends StatelessWidget {
         isSending: s.createPaymentState is AsyncLoading<Payment>,
       ),
       builder: (context, data) {
+        final modeDetails = SeededGatewayModes.all.firstWhere(
+          (e) => e.type == data.mode,
+        );
         return PayTopBar(
-          backendModeLabel: 'Backend · ${data.mode.title}',
+          backendModeLabel: 'Backend · ${modeDetails.title}',
           onDebugTap: data.isSending
               ? null
               : () => _showBackendSheet(context, data.mode),
@@ -36,7 +40,7 @@ class PayHeaderSection extends StatelessWidget {
 
   Future<void> _showBackendSheet(
     BuildContext context,
-    GatewayMode selected,
+    GatewayModeType selected,
   ) async {
     final cubit = context.read<PayCubit>();
     final selected = cubit.state.backendMode;
@@ -53,7 +57,7 @@ class PayHeaderSection extends StatelessWidget {
 }
 
 class _Data extends Equatable {
-  final GatewayMode mode;
+  final GatewayModeType mode;
   final bool isSending;
   const _Data({required this.mode, required this.isSending});
 

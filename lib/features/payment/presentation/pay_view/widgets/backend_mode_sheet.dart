@@ -40,21 +40,21 @@
 import 'package:fave/features/payment/constant/gateway_modes.dart'
     show SeededGatewayModes;
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
-    show GatewayMode;
+    show GatewayMode, GatewayModeType;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/widgets/bottom_sheet.dart' show FBottomSheet;
 import 'package:flutter/material.dart';
 
 typedef VoidSelectedCallback = void Function(
   BuildContext context,
-  GatewayMode value,
+  GatewayModeType value,
 );
 
 class BackendBehaviourSheet extends StatelessWidget {
-  final GatewayMode selected;
+  final GatewayModeType selected;
   final VoidSelectedCallback onSelected;
 
-  const BackendBehaviourSheet({
+  const BackendBehaviourSheet._({
     super.key,
     required this.selected,
     required this.onSelected,
@@ -62,13 +62,13 @@ class BackendBehaviourSheet extends StatelessWidget {
 
   static Future<void> show(
     BuildContext context, {
-    required GatewayMode selected,
+    required GatewayModeType selected,
     required VoidSelectedCallback onSelected,
   }) {
     return FBottomSheet.show(
       context,
       builder: (context) =>
-          BackendBehaviourSheet(selected: selected, onSelected: onSelected),
+          BackendBehaviourSheet._(selected: selected, onSelected: onSelected),
     );
   }
 
@@ -111,8 +111,8 @@ class BackendBehaviourSheet extends StatelessWidget {
         for (final mode in SeededGatewayModes.all)
           _ModeRow(
             mode: mode,
-            isSelected: mode.type == selected.type,
-            onTap: () => onSelected(context, mode),
+            isSelected: mode.type == selected,
+            onTap: () => onSelected(context, mode.type),
           ),
       ],
     );
@@ -175,9 +175,7 @@ class _RadioDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 20,
-      height: 20,
+    return DecoratedBox(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: isSelected ? color : Colors.transparent,
@@ -185,18 +183,14 @@ class _RadioDot extends StatelessWidget {
             ? null
             : Border.all(color: color.withValues(alpha: 0.4), width: 2),
       ),
-      child: isSelected
-          ? Center(
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            )
-          : null,
+      child: SizedBox.square(
+        dimension: 20,
+        child: isSelected
+            ? Center(
+                child: CircleAvatar(radius: 4, backgroundColor: Colors.white),
+              )
+            : null,
+      ),
     );
   }
 }
