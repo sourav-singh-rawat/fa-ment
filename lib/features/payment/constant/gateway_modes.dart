@@ -37,5 +37,9 @@ class SeededGatewayModes {
     ),
   ];
 
+  static GatewayMode byType(GatewayModeType type) {
+    return SeededGatewayModes.all.firstWhere((e) => e.type == type);
+  }
+
   static GatewayMode get defaultMode => all.first;
 }

@@ -25,9 +25,7 @@ class PayHeaderSection extends StatelessWidget {
         isSending: s.createPaymentState is AsyncLoading<Payment>,
       ),
       builder: (context, data) {
-        final modeDetails = SeededGatewayModes.all.firstWhere(
-          (e) => e.type == data.mode,
-        );
+        final modeDetails = SeededGatewayModes.byType(data.mode);
         return PayTopBar(
           backendModeLabel: 'Backend · ${modeDetails.title}',
           onDebugTap: data.isSending

@@ -51,9 +51,7 @@ class _RecipientSection extends StatelessWidget {
         isSending: s.createPaymentState is AsyncLoading,
       ),
       builder: (context, data) {
-        final recipient = SeededRecipients.all.firstWhere(
-          (e) => e.id == data.recipientId,
-        );
+        final recipient = SeededRecipients.byId(data.recipientId);
 
         return RecipientCard(
           name: recipient.name,

@@ -20,5 +20,9 @@ class SeededRecipients {
     ),
   ];
 
+  static Recipient byId(String id) {
+    return SeededRecipients.all.firstWhere((e) => e.id == id);
+  }
+
   static Recipient get defaultRecipient => all.first;
 }
