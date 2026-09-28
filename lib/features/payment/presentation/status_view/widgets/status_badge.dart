@@ -35,8 +35,8 @@ class StatusBadge extends StatelessWidget {
               crossColor: colors.failedCross,
             ),
             BadgeKind.waiting => _WaitingRing(
-              trackColor: colors.countdownTrack,
-              progressColor: colors.countdownProgress,
+              trackColor: colors.avatarAndWaitingRing,
+              progressColor: colors.avatarAndWaitingRing,
               progress: waitingProgress,
             ),
           },
@@ -164,9 +164,8 @@ class _WaitingRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 64,
-      height: 64,
+    return SizedBox.square(
+      dimension: 64,
       child: CustomPaint(
         painter: _WaitingRingPainter(
           trackColor: trackColor,
