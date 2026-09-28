@@ -40,7 +40,7 @@ class FCtaButton extends StatelessWidget {
             style: BorderStyle.none,
           ),
         ),
-        borderRadius: BorderRadius.circular(layout.primaryCtaRadius),
+        // borderRadius: BorderRadius.circular(layout.primaryCtaRadius),
         child: InkWell(
           onTap: isTappable ? onPressed : null,
           borderRadius: BorderRadius.circular(layout.primaryCtaRadius),
