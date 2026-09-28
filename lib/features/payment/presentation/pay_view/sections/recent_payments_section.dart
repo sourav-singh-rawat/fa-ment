@@ -45,7 +45,7 @@ class RecentPaymentsSection extends StatelessWidget {
           return Column(
             children: recordsMap.entries.map<Widget>((entry) {
               final record = entry.value;
-              final recipient = SeededRecipients.byId(record.id);
+              final recipient = SeededRecipients.byId(record.recipientId);
 
               final isFirstRecord = entry.key <= 0;
               return RecentPaymentRow(
