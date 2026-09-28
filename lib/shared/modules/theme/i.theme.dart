@@ -21,7 +21,7 @@ class FColorTokens extends ThemeExtension<FColorTokens> {
   final Color primaryCta;
   final Color primaryCtaText;
   final Color invalidCta;
-  final Color sendingCta;
+  final Color loadingCta;
 
   final Color failedBadge;
   final Color failedCross;
@@ -53,7 +53,7 @@ class FColorTokens extends ThemeExtension<FColorTokens> {
     required this.primaryCta,
     required this.primaryCtaText,
     required this.invalidCta,
-    required this.sendingCta,
+    required this.loadingCta,
     required this.failedBadge,
     required this.failedCross,
     required this.noticeBox,
@@ -84,7 +84,7 @@ class FColorTokens extends ThemeExtension<FColorTokens> {
     // The spec requires the primary teal at 40% opacity for invalid amount.
     invalidCta: Color(0x660FBAB0),
     // The spec requires the primary teal at 55% opacity while Sending.
-    sendingCta: Color(0x8C0FBAB0),
+    loadingCta: Color(0x8C0FBAB0),
     failedBadge: Color(0xFFFBEAE8),
     failedCross: Color(0xFFB8433C),
     noticeBox: Color(0xFFFFF3EE),
@@ -142,7 +142,7 @@ class FColorTokens extends ThemeExtension<FColorTokens> {
       primaryCta: primaryCta ?? this.primaryCta,
       primaryCtaText: primaryCtaText ?? this.primaryCtaText,
       invalidCta: invalidCta ?? this.invalidCta,
-      sendingCta: sendingCta ?? this.sendingCta,
+      loadingCta: sendingCta ?? this.loadingCta,
       failedBadge: failedBadge ?? this.failedBadge,
       failedCross: failedCross ?? this.failedCross,
       noticeBox: noticeBox ?? this.noticeBox,
@@ -188,7 +188,7 @@ class FColorTokens extends ThemeExtension<FColorTokens> {
       primaryCta: Color.lerp(primaryCta, other.primaryCta, t)!,
       primaryCtaText: Color.lerp(primaryCtaText, other.primaryCtaText, t)!,
       invalidCta: Color.lerp(invalidCta, other.invalidCta, t)!,
-      sendingCta: Color.lerp(sendingCta, other.sendingCta, t)!,
+      loadingCta: Color.lerp(loadingCta, other.loadingCta, t)!,
       failedBadge: Color.lerp(failedBadge, other.failedBadge, t)!,
       failedCross: Color.lerp(failedCross, other.failedCross, t)!,
       noticeBox: Color.lerp(noticeBox, other.noticeBox, t)!,

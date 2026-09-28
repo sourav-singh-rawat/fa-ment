@@ -1,7 +1,7 @@
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:flutter/material.dart';
 
-enum FCtaVariant { enabled, disabled, sending }
+enum FCtaVariant { enabled, disabled, loading }
 
 class FCtaButton extends StatelessWidget {
   final String label;
@@ -24,7 +24,7 @@ class FCtaButton extends StatelessWidget {
     final Color background = switch (variant) {
       FCtaVariant.enabled => colors.primaryCta,
       FCtaVariant.disabled => colors.invalidCta,
-      FCtaVariant.sending => colors.sendingCta,
+      FCtaVariant.loading => colors.loadingCta,
     };
 
     final bool isTappable = variant == FCtaVariant.enabled;
