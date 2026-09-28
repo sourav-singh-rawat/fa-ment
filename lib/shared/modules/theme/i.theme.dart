@@ -1,158 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-abstract final class FaveAppTheme {
-  static ThemeData light() {
-    const colors = FaveColorTokens.light;
-    final text = FaveTextTokens.create(colors);
-
-    final baseTextTheme = GoogleFonts.onestTextTheme();
-    final textTheme = baseTextTheme.copyWith(
-      titleMedium: GoogleFonts.onest(
-        fontSize: 17,
-        height: 22 / 17,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.2,
-        color: colors.primaryText,
-      ),
-      bodyMedium: GoogleFonts.onest(
-        fontSize: 13,
-        height: 19 / 13,
-        fontWeight: FontWeight.w400,
-        color: colors.primaryText,
-      ),
-      bodySmall: GoogleFonts.onest(
-        fontSize: 12.5,
-        height: 17 / 12.5,
-        fontWeight: FontWeight.w400,
-        color: colors.secondaryText,
-      ),
-      labelLarge: text.ctaLabel,
-      labelMedium: text.chipLabel,
-    );
-
-    final colorScheme = ColorScheme.light(
-      primary: colors.primaryCta,
-      onPrimary: colors.primaryCtaText,
-      secondary: colors.link,
-      onSecondary: Colors.white,
-      surface: colors.screenBackground,
-      onSurface: colors.primaryText,
-      error: colors.amountError,
-      onError: Colors.white,
-      outline: colors.chipBorder,
-      outlineVariant: colors.fieldUnderline,
-    );
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: colors.screenBackground,
-      fontFamily: GoogleFonts.onest().fontFamily,
-      textTheme: textTheme,
-      extensions: <ThemeExtension<dynamic>>[
-        colors,
-        FaveLayoutTokens.standard,
-        text,
-      ],
-      dividerTheme: DividerThemeData(
-        color: colors.fieldUnderline,
-        thickness: 1,
-        space: 1,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        isDense: true,
-        hintStyle: text.noteField.copyWith(color: colors.mutedText),
-        errorStyle: text.amountError,
-        contentPadding: EdgeInsets.zero,
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFE7DFD4), width: 1),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF5E6DFF), width: 1),
-        ),
-        errorBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFB8433C), width: 1),
-        ),
-        focusedErrorBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFB8433C), width: 1),
-        ),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size.fromHeight(54)),
-          padding: const WidgetStatePropertyAll(
-            EdgeInsets.symmetric(vertical: 17, horizontal: 24),
-          ),
-          shape: const WidgetStatePropertyAll(StadiumBorder()),
-          textStyle: WidgetStatePropertyAll(text.ctaLabel),
-          foregroundColor: const WidgetStatePropertyAll(Color(0xFFFFFFFF)),
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.disabled)) {
-              return colors.invalidCta;
-            }
-            return colors.primaryCta;
-          }),
-          elevation: const WidgetStatePropertyAll(0),
-          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        ),
-      ),
-      bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: colors.screenBackground,
-        modalBackgroundColor: colors.screenBackground,
-        modalBarrierColor: colors.sheetScrim,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        dragHandleColor: colors.sheetGrabber,
-        dragHandleSize: const Size(36, 4),
-        showDragHandle: true,
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: colors.chipFill,
-        disabledColor: colors.chipFill,
-        selectedColor: colors.chipFill,
-        side: BorderSide(color: colors.chipBorder, width: 1),
-        shape: const StadiumBorder(),
-        labelStyle: text.chipLabel,
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
-      ),
-      radioTheme: RadioThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colors.link;
-          return colors.chipBorder;
-        }),
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: colors.screenBackground,
-        foregroundColor: colors.primaryText,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        titleTextStyle: textTheme.titleMedium,
-      ),
-    );
-  }
-}
-
-/// Convenience accessors that keep widget code short and avoid repeated
-/// `Theme.of(context).extension<T>()!` boilerplate.
-extension FaveThemeContext on BuildContext {
-  FaveColorTokens get faveColors =>
-      Theme.of(this).extension<FaveColorTokens>()!;
-  FaveLayoutTokens get faveLayout =>
-      Theme.of(this).extension<FaveLayoutTokens>()!;
-  FaveTextTokens get faveText => Theme.of(this).extension<FaveTextTokens>()!;
-}
-
 /// Colour tokens that do not map cleanly to Material's generic ColorScheme.
 ///
 /// The app should use these semantic names rather than arbitrary hex values
 /// inside individual widgets. This prevents visual drift between Pay,
 /// Confirming, Success, Failed, history, and the two bottom sheets.
 @immutable
-class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
+class FColorTokens extends ThemeExtension<FColorTokens> {
   final Color screenBackground;
   final Color primaryText;
   final Color secondaryText;
@@ -186,7 +41,7 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
   final Color recentBadgeBackground;
   final Color successNote;
 
-  const FaveColorTokens({
+  const FColorTokens({
     required this.screenBackground,
     required this.primaryText,
     required this.secondaryText,
@@ -215,7 +70,7 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
     required this.successNote,
   });
 
-  static const light = FaveColorTokens(
+  static const light = FColorTokens(
     screenBackground: Color(0xFFFFFBF6),
     primaryText: Color(0xFF232323),
     secondaryText: Color(0xFF7A7877),
@@ -247,7 +102,7 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
   );
 
   @override
-  FaveColorTokens copyWith({
+  FColorTokens copyWith({
     Color? screenBackground,
     Color? primaryText,
     Color? secondaryText,
@@ -275,7 +130,7 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
     Color? recentBadgeBackground,
     Color? successNote,
   }) {
-    return FaveColorTokens(
+    return FColorTokens(
       screenBackground: screenBackground ?? this.screenBackground,
       primaryText: primaryText ?? this.primaryText,
       secondaryText: secondaryText ?? this.secondaryText,
@@ -307,9 +162,9 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
   }
 
   @override
-  FaveColorTokens lerp(FaveColorTokens? other, double t) {
-    if (other is! FaveColorTokens) return this;
-    return FaveColorTokens(
+  FColorTokens lerp(FColorTokens? other, double t) {
+    if (other is! FColorTokens) return this;
+    return FColorTokens(
       screenBackground: Color.lerp(
         screenBackground,
         other.screenBackground,
@@ -367,7 +222,7 @@ class FaveColorTokens extends ThemeExtension<FaveColorTokens> {
 /// a backend-chip radius. Keeping them as a ThemeExtension means they are
 /// still centralized, inherited, testable, and available from BuildContext.
 @immutable
-class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
+class FLayoutTokens extends ThemeExtension<FLayoutTokens> {
   final EdgeInsets screenPadding;
   final double payBlockGap;
   final double topBarGap;
@@ -389,7 +244,7 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
   final double noticeRadius;
   final EdgeInsets noticePadding;
 
-  const FaveLayoutTokens({
+  const FLayoutTokens({
     required this.screenPadding,
     required this.payBlockGap,
     required this.topBarGap,
@@ -412,7 +267,7 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
     required this.noticePadding,
   });
 
-  static const standard = FaveLayoutTokens(
+  static const standard = FLayoutTokens(
     screenPadding: EdgeInsets.only(top: 56, left: 32, right: 32, bottom: 32),
     payBlockGap: 24,
     topBarGap: 14,
@@ -436,7 +291,7 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
   );
 
   @override
-  FaveLayoutTokens copyWith({
+  FLayoutTokens copyWith({
     EdgeInsets? screenPadding,
     double? payBlockGap,
     double? topBarGap,
@@ -458,7 +313,7 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
     double? noticeRadius,
     EdgeInsets? noticePadding,
   }) {
-    return FaveLayoutTokens(
+    return FLayoutTokens(
       screenPadding: screenPadding ?? this.screenPadding,
       payBlockGap: payBlockGap ?? this.payBlockGap,
       topBarGap: topBarGap ?? this.topBarGap,
@@ -484,9 +339,9 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
   }
 
   @override
-  FaveLayoutTokens lerp(FaveLayoutTokens? other, double t) {
-    if (other is! FaveLayoutTokens) return this;
-    return FaveLayoutTokens(
+  FLayoutTokens lerp(FLayoutTokens? other, double t) {
+    if (other is! FLayoutTokens) return this;
+    return FLayoutTokens(
       screenPadding: EdgeInsets.lerp(screenPadding, other.screenPadding, t)!,
       payBlockGap: _lerpDouble(payBlockGap, other.payBlockGap, t),
       topBarGap: _lerpDouble(topBarGap, other.topBarGap, t),
@@ -550,7 +405,7 @@ class FaveLayoutTokens extends ThemeExtension<FaveLayoutTokens> {
 /// Material has no stable equivalent for (ring seconds, amount field,
 /// history badge, etc.).
 @immutable
-class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
+class FTextTokens extends ThemeExtension<FTextTokens> {
   final TextStyle amountField;
   final TextStyle amountError;
   final TextStyle sectionLabel;
@@ -569,7 +424,7 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
   final TextStyle ctaLabel;
   final TextStyle checkingLink;
 
-  const FaveTextTokens({
+  const FTextTokens({
     required this.amountField,
     required this.amountError,
     required this.sectionLabel,
@@ -589,7 +444,7 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
     required this.checkingLink,
   });
 
-  static FaveTextTokens create(FaveColorTokens colors) {
+  static FTextTokens create(FColorTokens colors) {
     TextStyle style({
       required double fontSize,
       required double lineHeight,
@@ -606,7 +461,7 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
       );
     }
 
-    return FaveTextTokens(
+    return FTextTokens(
       amountField: style(
         fontSize: 40,
         lineHeight: 46,
@@ -703,7 +558,7 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
   }
 
   @override
-  FaveTextTokens copyWith({
+  FTextTokens copyWith({
     TextStyle? amountField,
     TextStyle? amountError,
     TextStyle? sectionLabel,
@@ -722,7 +577,7 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
     TextStyle? ctaLabel,
     TextStyle? checkingLink,
   }) {
-    return FaveTextTokens(
+    return FTextTokens(
       amountField: amountField ?? this.amountField,
       amountError: amountError ?? this.amountError,
       sectionLabel: sectionLabel ?? this.sectionLabel,
@@ -744,9 +599,9 @@ class FaveTextTokens extends ThemeExtension<FaveTextTokens> {
   }
 
   @override
-  FaveTextTokens lerp(FaveTextTokens? other, double t) {
-    if (other is! FaveTextTokens) return this;
-    return FaveTextTokens(
+  FTextTokens lerp(FTextTokens? other, double t) {
+    if (other is! FTextTokens) return this;
+    return FTextTokens(
       amountField: TextStyle.lerp(amountField, other.amountField, t)!,
       amountError: TextStyle.lerp(amountError, other.amountError, t)!,
       sectionLabel: TextStyle.lerp(sectionLabel, other.sectionLabel, t)!,
