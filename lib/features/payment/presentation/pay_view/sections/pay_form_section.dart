@@ -118,19 +118,13 @@ class _AmountData {
 
   const _AmountData({required this.fieldState, required this.isSending});
 
-  static AmountFieldState toAmountFieldState(String value) {
-    if (value.isEmpty) {
-      return const AmountEmpty();
-    }
-
-    final amount = int.tryParse(value);
-
+  static AmountFieldState toAmountFieldState(int? amount) {
     if (amount == null) {
-      return const AmountInvalid();
+      return AmountEmpty();
     }
 
     if (amount < 1) {
-      return AmountBelowMinimum(value);
+      return AmountBelowMinimum(amount.toString());
     }
 
     if (amount > 100000) {

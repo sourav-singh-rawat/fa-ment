@@ -13,17 +13,14 @@ import 'package:fave/features/payment/constant/gateway_modes.dart'
 import 'package:fave/features/payment/constant/recipients.dart'
     show SeededRecipients;
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
-    show GatewayMode;
+    show GatewayModeType;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show PaymentPending;
-import 'package:fave/features/payment/domain/entities/recipient.dart'
-    show Recipient;
 import 'package:fave/features/payment/domain/payment_repository.dart'
     show PaymentRepository;
 import 'package:fave/shared/utils/async_state.dart' show AsyncState;
-import 'package:fave/shared/utils/valid_state.dart';
 
 part 'pay_state.dart';
 
@@ -79,20 +76,16 @@ class PayCubit extends Cubit<PayState> {
     );
   }
 
-  void onChangeBackendMode(GatewayMode mode) {
+  void onChangeBackendMode(GatewayModeType mode) {
     emit(state.copyWith(backendMode: mode));
   }
 
-  void onChangeRecipient(Recipient recipient) {
-    emit(state.copyWith(recipient: recipient));
+  void onChangeRecipient(String recipientId) {
+    emit(state.copyWith(recipientId: recipientId));
   }
 
-  void onChangeAmount(String value) {
-    emit(
-      state.copyWith(
-        amount: state.amount.copyWith(value: value, errorText: value.validate),
-      ),
-    );
+  void onChangeAmount(int value) {
+    emit(state.copyWith(amount: value));
   }
 
   void onChangeNote(String note) {
@@ -107,14 +100,12 @@ class PayCubit extends Cubit<PayState> {
 
   void _onCreatePayment() {
     try {
-      final parsed = int.tryParse(state.amount.value);
-
       emit(state.copyWith(createPaymentState: AsyncState.loading()));
 
       _paymentFlowCoordinator.createPayment(
-        backendMode: state.backendMode.type,
-        recipientId: state.recipient.id,
-        amount: parsed!,
+        backendMode: state.backendMode,
+        recipientId: state.recipientId,
+        amount: state.amount!,
         note: state.note,
       );
     } catch (error) {
@@ -156,18 +147,5 @@ class PayCubit extends Cubit<PayState> {
     _attempt = null;
     _paymentFlowEventSubscription.cancel();
     return super.close();
-  }
-}
-
-extension on String {
-  String get validate {
-    if (isEmpty) return '';
-    final parsed = int.tryParse(this);
-    if (parsed == null) return 'Opps, Something wrong.';
-    if (parsed < 1) return 'Enter at least ₹1';
-    if (parsed > 100000) {
-      return 'UPI payments are capped at ₹1,00,000 per transaction';
-    }
-    return '';
   }
 }

@@ -16,10 +16,6 @@ final class AmountValid extends AmountFieldState {
   const AmountValid(this.formattedValue);
 }
 
-final class AmountInvalid extends AmountFieldState {
-  const AmountInvalid();
-}
-
 final class AmountBelowMinimum extends AmountFieldState {
   final String rawDisplayValue;
   const AmountBelowMinimum(this.rawDisplayValue);
@@ -33,7 +29,7 @@ final class AmountAboveLimit extends AmountFieldState {
 class AmountInput extends StatefulWidget {
   final AmountFieldState state;
   final bool enabled;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<int> onChanged;
 
   const AmountInput({
     super.key,
@@ -74,11 +70,21 @@ class _AmountInputState extends State<AmountInput> {
   }
 
   String _displayTextFor(AmountFieldState state) => switch (state) {
-    AmountEmpty() || AmountInvalid() => '',
+    AmountEmpty() => '',
     AmountBelowMinimum(:final rawDisplayValue) => rawDisplayValue,
     AmountValid(:final formattedValue) => formattedValue,
     AmountAboveLimit(:final formattedValue) => formattedValue,
   };
+
+  void onChanged(String value) {
+    final amount = int.tryParse(value);
+    if (amount == null) {
+      _controller.text = '';
+      return;
+    }
+
+    widget.onChanged(amount);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,13 +94,10 @@ class _AmountInputState extends State<AmountInput> {
     final Color underlineColor = switch (widget.state) {
       AmountEmpty() => colors.focusedUnderline,
       AmountValid() => colors.fieldUnderline,
-      AmountBelowMinimum() ||
-      AmountInvalid() ||
-      AmountAboveLimit() => colors.errorUnderline,
+      AmountBelowMinimum() || AmountAboveLimit() => colors.errorUnderline,
     };
 
     final String? errorText = switch (widget.state) {
-      AmountInvalid() => 'Invalid input',
       AmountBelowMinimum() => 'Enter at least ₹1',
       AmountAboveLimit() =>
         'UPI payments are capped at ₹1,00,000 per transaction',
@@ -111,7 +114,7 @@ class _AmountInputState extends State<AmountInput> {
           controller: _controller,
           keyboardType: TextInputType.number,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          onChanged: widget.onChanged,
+          onChanged: onChanged,
           style: text.amountField,
           decoration: InputDecoration(
             isCollapsed: true,
