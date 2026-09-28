@@ -1,8 +1,6 @@
 
 # Design notes
 
-> Work in progress: Done basic UI for testing flows, finishing the UI and pushing the code to the repository, within Monday first-half. Sorry for the delay—(I’ll have it up soon, was dealing some personal issues, reported Siva).
-
 ## State machine
 
 A payment attempt starts as **pending**. `PayCubit` collects the recipient, amount, note, and gateway mode, then asks `PaymentFlowCoordinator` to create the payment. The coordinator generates a key, saves the attempt locally, listens for gateway updates, and starts a five-second create timeout.
