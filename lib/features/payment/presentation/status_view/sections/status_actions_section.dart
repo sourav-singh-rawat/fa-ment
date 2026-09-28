@@ -27,7 +27,7 @@ class StatusActionsSection extends StatelessWidget {
           FCtaButton(
             label: 'Try again',
             variant: FCtaVariant.enabled,
-            onPressed: () => _onTryAgain(context),
+            onPressed: () => _returnToHome(context),
           ),
           const SizedBox(height: 18),
           FTextLink(label: 'Go back', onTap: () => _returnToHome(context)),
@@ -44,7 +44,7 @@ class StatusActionsSection extends StatelessWidget {
           const SizedBox(height: 18),
           FTextLink(
             label: 'Check status again',
-            onTap: () => _onTryAgain(context),
+            onTap: () => _returnToHome(context),
           ),
         ],
       ),
@@ -53,9 +53,5 @@ class StatusActionsSection extends StatelessWidget {
 
   void _returnToHome(BuildContext context) {
     context.router.popAndPush(PaymentRoute());
-  }
-
-  void _onTryAgain(BuildContext context) {
-    context.pop();
   }
 }
