@@ -107,9 +107,10 @@ class _Layout extends StatelessWidget {
           child: Column(
             children: [
               SummaryStrip(
-                amountAndRecipientSummary: _summaryFor(
-                  context.read<PaymentConfirmCubit>().paymentAttempt,
-                ),
+                amountAndRecipientSummary: context
+                    .read<PaymentConfirmCubit>()
+                    .paymentAttempt
+                    .summary,
               ),
               const Spacer(),
               const _ConfirmingStatus(),
@@ -125,10 +126,12 @@ class _Layout extends StatelessWidget {
       ),
     );
   }
+}
 
-  String _summaryFor(Payment payment) {
-    final recipient = SeededRecipients.byId(payment.recipientId);
-    return '₹${payment.amount.formatIndianRupees} to ${recipient.name}';
+extension on Payment {
+  String get summary {
+    final recipient = SeededRecipients.byId(recipientId);
+    return '₹${amount.formatIndianRupees} to ${recipient.name}';
   }
 }
 
