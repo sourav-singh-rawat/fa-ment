@@ -44,17 +44,6 @@ class BackendBehaviourSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(
-          child: Container(
-            width: layout.sheetGrabberSize.width,
-            height: layout.sheetGrabberSize.height,
-            decoration: BoxDecoration(
-              color: colors.sheetGrabber,
-              borderRadius: BorderRadius.circular(layout.sheetGrabberRadius),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
         Text(
           'Backend behaviour',
           style: text.confirmingHeading.copyWith(

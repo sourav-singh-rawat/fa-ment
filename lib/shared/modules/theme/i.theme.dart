@@ -283,7 +283,7 @@ class FLayoutTokens extends ThemeExtension<FLayoutTokens> {
     ringStrokeWidth: 8,
     badgeSize: 88,
     sheetTopRadius: 24,
-    sheetPadding: EdgeInsets.only(top: 12, left: 24, right: 24, bottom: 32),
+    sheetPadding: EdgeInsets.only(top: 0, left: 24, right: 24, bottom: 32),
     sheetGrabberSize: Size(36, 4),
     sheetGrabberRadius: 2,
     noticeRadius: 14,

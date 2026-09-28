@@ -45,19 +45,6 @@ class RecipientSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Center(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.sheetGrabber,
-              borderRadius: BorderRadius.circular(layout.sheetGrabberRadius),
-            ),
-            child: SizedBox(
-              width: layout.sheetGrabberSize.width,
-              height: layout.sheetGrabberSize.height,
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
         Text(
           'Who are you paying?',
           style: text.confirmingHeading.copyWith(
