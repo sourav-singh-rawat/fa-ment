@@ -9,8 +9,7 @@ import 'package:fave/features/payment/presentation/pay_view/widgets/amount_field
         AmountEmpty,
         AmountAboveLimit,
         AmountBelowMinimum,
-        AmountValid,
-        AmountInvalid;
+        AmountValid;
 import 'package:fave/features/payment/presentation/pay_view/widgets/note_field.dart'
     show NoteInput;
 import 'package:fave/features/payment/presentation/pay_view/widgets/recipient_card.dart'
@@ -98,9 +97,9 @@ class _AmountSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocSelector<PayCubit, PayState, _AmountData>(
-      selector: (s) => _AmountData(
-        fieldState: _AmountData.toAmountFieldState(s.amount),
+    return BlocSelector<PayCubit, PayState, AmountFieldData>(
+      selector: (s) => AmountFieldData(
+        fieldState: AmountFieldData.toAmountFieldState(s.amount),
         isSending: s.createPaymentState is AsyncLoading,
       ),
       builder: (context, data) => AmountInput(
@@ -112,11 +111,11 @@ class _AmountSection extends StatelessWidget {
   }
 }
 
-class _AmountData {
+class AmountFieldData {
   final AmountFieldState fieldState;
   final bool isSending;
 
-  const _AmountData({required this.fieldState, required this.isSending});
+  const AmountFieldData({required this.fieldState, required this.isSending});
 
   static AmountFieldState toAmountFieldState(int? amount) {
     if (amount == null) {
