@@ -14,7 +14,7 @@ class ReferenceLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '$formattedTimestamp · $reference',
+      '$formattedTimestamp · UPI ref $reference',
       style: context.text.recentStatus.copyWith(
         fontSize: 12.5,
         height: 17 / 12.5,
