@@ -1,17 +1,17 @@
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
-import 'package:fave/shared/widgets/avatar_circle.dart' show AvatarCircle;
+import 'package:fave/shared/widgets/avatar_circle.dart' show FCircleAvatar;
 import 'package:flutter/material.dart';
 
 class RecipientCard extends StatelessWidget {
   final String name;
   final String handle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const RecipientCard({
     super.key,
     required this.name,
     required this.handle,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
@@ -30,8 +30,8 @@ class RecipientCard extends StatelessWidget {
           padding: layout.recipientCardPadding,
           child: Row(
             children: [
-              AvatarCircle(size: layout.recipientAvatarSize),
-              SizedBox(width: layout.recipientCardPadding.left - 4), // ~14 gap
+              FCircleAvatar(size: layout.recipientAvatarSize),
+              SizedBox(width: layout.recipientCardPadding.left - 4),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +43,7 @@ class RecipientCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 4),
                     Text(
                       handle,
                       style: text.recentStatus.copyWith(
