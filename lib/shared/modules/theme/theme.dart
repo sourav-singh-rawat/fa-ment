@@ -147,3 +147,10 @@ extension FThemeContext on BuildContext {
   FLayoutTokens get layout => Theme.of(this).extension<FLayoutTokens>()!;
   FTextTokens get text => Theme.of(this).extension<FTextTokens>()!;
 }
+
+abstract final class FFontsAwareLinkStyle {
+  static TextStyle of(BuildContext context) {
+    final base = context.text.checkingLink; // same family/size family
+    return base.copyWith(fontWeight: FontWeight.w400);
+  }
+}
