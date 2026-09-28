@@ -96,7 +96,6 @@ class _ModeRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 9),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _RadioDot(isSelected: isSelected, color: colors.link),
             const SizedBox(width: 14),
