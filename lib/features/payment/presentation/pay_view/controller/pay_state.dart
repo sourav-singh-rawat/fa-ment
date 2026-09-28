@@ -50,7 +50,7 @@ class PayState extends Equatable {
   List<Object> get props => [
     backendMode,
     recipientId,
-    amount ?? 0,
+    amount ?? -1,
     note ?? '',
     transactions,
     createPaymentState,

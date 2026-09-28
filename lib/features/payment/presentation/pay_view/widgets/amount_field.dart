@@ -71,9 +71,9 @@ class _AmountInputState extends State<AmountInput> {
 
   String _displayTextFor(AmountFieldState state) => switch (state) {
     AmountEmpty() => '',
-    AmountBelowMinimum(:final rawDisplayValue) => rawDisplayValue,
-    AmountValid(:final formattedValue) => formattedValue,
-    AmountAboveLimit(:final formattedValue) => formattedValue,
+    AmountBelowMinimum(:final rawDisplayValue) => '₹$rawDisplayValue',
+    AmountValid(:final formattedValue) => '₹$formattedValue',
+    AmountAboveLimit(:final formattedValue) => '₹$formattedValue',
   };
 
   void onChanged(String value) {
@@ -92,7 +92,7 @@ class _AmountInputState extends State<AmountInput> {
     final text = context.text;
 
     final Color underlineColor = switch (widget.state) {
-      AmountEmpty() => colors.focusedUnderline,
+      AmountEmpty() => const Color(0xFFE7DFD4),
       AmountValid() => colors.fieldUnderline,
       AmountBelowMinimum() || AmountAboveLimit() => colors.errorUnderline,
     };
@@ -120,10 +120,13 @@ class _AmountInputState extends State<AmountInput> {
             isCollapsed: true,
             hintText: '₹0',
             hintStyle: text.amountField.copyWith(color: colors.mutedText),
-            border: InputBorder.none,
+            border: _defaultTransparentBoarder,
+            errorBorder: _defaultTransparentBoarder,
+            focusedBorder: _defaultTransparentBoarder,
+            enabledBorder: _defaultTransparentBoarder,
+            disabledBorder: _defaultTransparentBoarder,
           ),
         ),
-        const SizedBox(height: 6),
         Divider(height: 1, color: underlineColor),
         if (errorText != null) ...[
           const SizedBox(height: 6),
@@ -133,3 +136,7 @@ class _AmountInputState extends State<AmountInput> {
     );
   }
 }
+
+const _defaultTransparentBoarder = UnderlineInputBorder(
+  borderSide: BorderSide(color: Colors.transparent, width: 0),
+);

@@ -56,7 +56,7 @@ class RecentPaymentRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            formattedAmount,
+            '₹$formattedAmount',
             style: text.recentAmount,
             maxLines: 1,
             overflow: TextOverflow.clip, // amount never truncates

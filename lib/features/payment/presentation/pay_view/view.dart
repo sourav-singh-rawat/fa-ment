@@ -22,19 +22,11 @@ import 'package:fave/shared/modules/router/i.router.gr.dart'
     show PaymentConfirmingRoute;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart'
-    show
-        AsyncState,
-        AsyncLoading,
-        AsyncSuccess,
-        AsyncFailure,
-        AsyncIdle,
-        AsyncPartial;
+    show AsyncSuccess, AsyncFailure, AsyncPartial;
 import 'package:fave/shared/utils/async_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
-    show BlocProvider, ReadContext, BlocListener, BlocSelector;
-
-part 'widgets/recent_transaction.dart';
+    show BlocProvider, ReadContext, BlocListener;
 
 @RoutePage()
 class PayView extends StatelessWidget {

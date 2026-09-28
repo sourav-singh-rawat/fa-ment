@@ -68,11 +68,12 @@ class _NoteInputState extends State<NoteInput> {
             isCollapsed: true,
             hintText: 'Add a note (optional)',
             hintStyle: text.noteField.copyWith(color: colors.mutedText),
-            border: InputBorder.none,
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: colors.fieldUnderline),
+            ),
           ),
         ),
         const SizedBox(height: 6),
-        Container(height: 1, color: colors.fieldUnderline),
       ],
     );
   }
