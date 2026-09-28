@@ -23,7 +23,10 @@ class RecentPaymentsSection extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      const FSectionLabel('RECENT'),
+      FSectionLabel(
+        'RECENT',
+        textStyle: TextStyle(color: context.colors.secondaryText),
+      ),
       SizedBox(height: context.layout.recentListFirstRowGap),
       BlocSelector<PayCubit, PayState, AsyncState<List<Payment>>>(
         selector: (s) => s.transactions,
@@ -60,6 +63,7 @@ class RecentPaymentsSection extends StatelessWidget {
                   PaymentUnresolved() => InlineBadgeKind.unresolved,
                   _ => null,
                 },
+                createdAt: record.createdAt,
                 showTopDivider: !isFirstRecord,
               );
             }).toList(),

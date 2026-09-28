@@ -1,6 +1,7 @@
 import 'package:fave/features/payment/presentation/widgets/inline_status_badge.dart'
     show InlineBadgeKind, InlineStatusBadge;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
+import 'package:fave/shared/utils/extensions/datetime_ext.dart';
 import 'package:flutter/material.dart';
 
 class RecentPaymentRow extends StatelessWidget {
@@ -8,6 +9,7 @@ class RecentPaymentRow extends StatelessWidget {
   final String statusLine;
   final String formattedAmount;
   final InlineBadgeKind? badge;
+  final DateTime createdAt;
   final bool showTopDivider;
 
   const RecentPaymentRow({
@@ -15,6 +17,7 @@ class RecentPaymentRow extends StatelessWidget {
     required this.payeeName,
     required this.statusLine,
     required this.formattedAmount,
+    required this.createdAt,
     this.badge,
     this.showTopDivider = false,
   });
@@ -44,7 +47,10 @@ class RecentPaymentRow extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(statusLine, style: text.recentStatus),
+                    Text(
+                      '$statusLine · ${createdAt.pulseFormattedTime.toLowerCase()}',
+                      style: text.recentStatus,
+                    ),
                     if (badge != null) ...[
                       const SizedBox(width: 6),
                       InlineStatusBadge(kind: badge!),

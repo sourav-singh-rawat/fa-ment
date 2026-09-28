@@ -71,7 +71,8 @@ class _Success extends StatelessWidget {
         ],
         const SizedBox(height: 20),
         ReferenceLine(
-          formattedTimestamp: payment.status.updatedAt.format('EEE, h:mm a'),
+          formattedTimestamp:
+              '${payment.status.updatedAt.formattedDay}, ${payment.status.updatedAt.format('h:mm a')}',
           reference: payment.serverId ?? payment.id,
         ),
       ],

@@ -486,7 +486,12 @@ class FTextTokens extends ThemeExtension<FTextTokens> {
         weight: FontWeight.w600,
         letterSpacing: -0.1,
       ),
-      noteField: style(fontSize: 13, lineHeight: 18, weight: FontWeight.w500),
+      noteField: style(
+        fontSize: 13,
+        lineHeight: 18,
+        weight: FontWeight.w500,
+        color: colors.secondaryText,
+      ),
       successNote: style(
         fontSize: 13,
         lineHeight: 18,

@@ -3,10 +3,14 @@ import 'package:flutter/material.dart';
 
 class FSectionLabel extends StatelessWidget {
   final String text;
-  const FSectionLabel(this.text, {super.key});
+  final TextStyle? textStyle;
+  const FSectionLabel(this.text, {super.key, this.textStyle});
 
   @override
   Widget build(BuildContext context) {
-    return Text(text.toUpperCase(), style: context.text.sectionLabel);
+    return Text(
+      text.toUpperCase(),
+      style: context.text.sectionLabel.merge(textStyle),
+    );
   }
 }
