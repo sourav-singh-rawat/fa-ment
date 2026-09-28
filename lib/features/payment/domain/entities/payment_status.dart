@@ -31,7 +31,7 @@ class PaymentPending extends PaymentStatus {
   PaymentPending({super.updatedAt});
 
   @override
-  String toString() => "Checking";
+  String toString() => "Pending";
 }
 
 class PaymentUnresolved extends PaymentStatus {

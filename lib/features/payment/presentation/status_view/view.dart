@@ -1,8 +1,11 @@
 import 'package:auto_route/annotations.dart' show RoutePage;
-import 'package:auto_route/auto_route.dart' show AutoRouterX;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
-import 'package:fave/shared/modules/router/i.router.gr.dart' show PaymentRoute;
+import 'package:fave/features/payment/presentation/status_view/sections/status_actions_section.dart'
+    show StatusActionsSection;
+import 'package:fave/features/payment/presentation/status_view/sections/status_center_section.dart'
+    show StatusCenterSection;
+import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:flutter/material.dart';
 
 @RoutePage()
@@ -13,12 +16,18 @@ class PaymentStatusView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            context.router.popAndPush(PaymentRoute());
-          },
-          child: Text(payment.status.toString()),
+      backgroundColor: context.colors.screenBackground,
+      body: SafeArea(
+        child: Padding(
+          padding: context.layout.screenPadding,
+          child: Column(
+            children: [
+              Expanded(
+                child: Center(child: StatusCenterSection(payment: payment)),
+              ),
+              StatusActionsSection(payment: payment),
+            ],
+          ),
         ),
       ),
     );

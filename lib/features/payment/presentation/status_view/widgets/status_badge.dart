@@ -6,10 +6,6 @@ enum BadgeKind { success, failed, waiting }
 class StatusBadge extends StatelessWidget {
   final BadgeKind kind;
 
-  /// Only meaningful for [BadgeKind.waiting] — the frozen ring's fill
-  /// fraction, matching the countdown ring's own progress convention
-  /// (0.0 = empty, 1.0 = full). Waiting badge is static, so this is
-  /// typically the value captured at the moment Still Confirming began.
   final double waitingProgress;
 
   const StatusBadge({

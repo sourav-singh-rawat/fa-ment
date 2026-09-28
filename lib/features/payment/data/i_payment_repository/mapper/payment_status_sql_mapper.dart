@@ -10,7 +10,7 @@ class _PaymentStatusSqlMapper {
     return switch (type) {
       'Success' => PaymentSuccess(updatedAt: updatedAt),
       'Failed' => PaymentFailed(updatedAt: updatedAt),
-      'Checking' => PaymentPending(updatedAt: updatedAt),
+      'Pending' => PaymentPending(updatedAt: updatedAt),
       _ => PaymentUnresolved(updatedAt: updatedAt),
     };
   }
