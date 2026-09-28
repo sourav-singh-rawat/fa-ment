@@ -43,16 +43,15 @@ class PayHeaderSection extends StatelessWidget {
     GatewayModeType selected,
   ) async {
     final cubit = context.read<PayCubit>();
-    final selected = cubit.state.backendMode;
 
-    await BackendBehaviourSheet.show(
+    final result = await BackendBehaviourSheet.show(
       context,
       selected: selected,
-      onSelected: (context, mode) {
-        cubit.onChangeBackendMode(mode);
-        Navigator.of(context).pop();
-      },
     );
+
+    if (result != null && !cubit.isClosed) {
+      cubit.onChangeBackendMode(result);
+    }
   }
 }
 

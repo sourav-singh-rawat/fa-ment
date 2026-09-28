@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:fave/features/payment/constant/gateway_modes.dart'
     show SeededGatewayModes;
 import 'package:fave/features/payment/domain/entities/gateway_mode.dart'
@@ -13,7 +14,7 @@ typedef VoidSelectedCallback = void Function(
 
 class BackendBehaviourSheet extends StatelessWidget {
   final GatewayModeType selected;
-  final VoidSelectedCallback onSelected;
+  final VoidSelectedCallback? onSelected;
 
   const BackendBehaviourSheet._({
     super.key,
@@ -21,10 +22,10 @@ class BackendBehaviourSheet extends StatelessWidget {
     required this.onSelected,
   });
 
-  static Future<void> show(
+  static Future<GatewayModeType?> show(
     BuildContext context, {
     required GatewayModeType selected,
-    required VoidSelectedCallback onSelected,
+    VoidSelectedCallback? onSelected,
   }) {
     return FBottomSheet.show(
       context,
@@ -73,7 +74,12 @@ class BackendBehaviourSheet extends StatelessWidget {
           _ModeRow(
             mode: mode,
             isSelected: mode.type == selected,
-            onTap: () => onSelected(context, mode.type),
+            onTap: () {
+              onSelected?.call(context, mode.type);
+              if (onSelected == null) {
+                context.pop(mode.type);
+              }
+            },
           ),
       ],
     );
