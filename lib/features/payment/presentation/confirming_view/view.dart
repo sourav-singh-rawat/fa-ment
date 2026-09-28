@@ -8,8 +8,6 @@ import 'package:fave/features/payment/application/payment_flow_coordinator/payme
     show PaymentFlowCoordinator;
 import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
-import 'package:fave/features/payment/domain/payment_repository.dart'
-    show PaymentRepository;
 import 'package:fave/features/payment/presentation/confirming_view/controller/payment_confirm_cubit.dart'
     show
         PaymentConfirmCubit,
@@ -35,7 +33,6 @@ class PaymentConfirmingView extends StatelessWidget {
     return BlocProvider(
       create: (context) => PaymentConfirmCubit(
         paymentFlowCoordinator: context.read<PaymentFlowCoordinator>(),
-        repository: context.read<PaymentRepository>(),
         paymentAttempt: paymentAttempt,
       )..startConfirming(),
       child: const _SideEffects(

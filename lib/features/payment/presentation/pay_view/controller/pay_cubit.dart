@@ -70,7 +70,7 @@ class PayCubit extends Cubit<PayState> {
       );
 
       transactions[i] = transactions[i].copyWith(status: status);
-      await _paymentRepository.update(transactions[i]);
+      await _paymentFlowCoordinator.updatePaymentAttempt(transactions[i]);
     }
 
     if (isClosed) return;

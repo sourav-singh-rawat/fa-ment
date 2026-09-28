@@ -73,7 +73,7 @@ class PaymentFlowCoordinator {
     });
 
     try {
-      await _repository.save(paymentAttempt);
+      await savePaymentAttempt(paymentAttempt);
 
       _gateway.mode = backendMode;
 
@@ -120,6 +120,14 @@ class PaymentFlowCoordinator {
   void onAppResumed(String key, DateTime deadline) async {
     await _listenAsyncStatusUpdates(key);
     waitAndConfirmStatus(key, deadline);
+  }
+
+  Future<void> savePaymentAttempt(Payment attempt) {
+    return _repository.save(attempt);
+  }
+
+  Future<void> updatePaymentAttempt(Payment attempt) {
+    return _repository.update(attempt);
   }
 
   void _schedulePolling(String key) {

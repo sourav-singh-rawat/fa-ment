@@ -11,8 +11,6 @@ import 'package:fave/features/payment/domain/entities/payment.dart'
     show Payment;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show PaymentStatus, PaymentPending;
-import 'package:fave/features/payment/domain/payment_repository.dart'
-    show PaymentRepository;
 import 'package:meta/meta.dart' show immutable;
 
 part 'payment_confirm_state.dart';
@@ -21,13 +19,11 @@ const kConfirmingDeadlineDuration = Duration(seconds: 10);
 
 class PaymentConfirmCubit extends Cubit<PaymentConfirmState> {
   final PaymentFlowCoordinator _paymentFlowCoordinator;
-  final PaymentRepository _repository;
   Payment _paymentAttempt;
   late final StreamSubscription<PaymentFlowEvent> _paymentFlowEventSubscription;
   late final DateTime _deadlineAt;
   PaymentConfirmCubit({
     required this._paymentFlowCoordinator,
-    required this._repository,
     required this._paymentAttempt,
   }) : super(PaymentConfirmInitial()) {
     _paymentFlowEventSubscription = _paymentFlowCoordinator.events.listen(
@@ -67,7 +63,7 @@ class PaymentConfirmCubit extends Cubit<PaymentConfirmState> {
   void _onReceiveStatus(PaymentStatus status) {
     _paymentAttempt = _paymentAttempt.copyWith(status: status);
 
-    _repository.update(_paymentAttempt);
+    _paymentFlowCoordinator.updatePaymentAttempt(_paymentAttempt);
 
     emit(PaymentFinalStatus(_paymentAttempt));
   }
