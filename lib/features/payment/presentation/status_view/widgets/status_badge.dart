@@ -19,28 +19,74 @@ class StatusBadge extends StatelessWidget {
     final colors = context.colors;
     final layout = context.layout;
 
-    return SizedBox(
-      width: layout.badgeSize,
-      height: layout.badgeSize,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Center(
-          child: switch (kind) {
-            BadgeKind.success => _SuccessCheck(color: colors.primaryCta),
-            BadgeKind.failed => _FailedCross(
-              circleColor: colors.failedBadge,
-              crossColor: colors.failedCross,
-            ),
-            BadgeKind.waiting => _WaitingRing(
-              trackColor: colors.avatarAndWaitingRing,
-              progressColor: colors.avatarAndWaitingRing,
-              progress: waitingProgress,
-            ),
-          },
-        ),
+    return Center(
+      child: SizedBox.square(
+        dimension: layout.badgeSize,
+        child: switch (kind) {
+          BadgeKind.success => _SuccessCheckAnimate(color: colors.primaryCta),
+          BadgeKind.failed => _FailedCross(
+            circleColor: colors.failedBadge,
+            crossColor: colors.failedCross,
+          ),
+          BadgeKind.waiting => _WaitingRing(
+            trackColor: colors.avatarAndWaitingRing,
+            progressColor: colors.avatarAndWaitingRing,
+            progress: waitingProgress,
+          ),
+        },
+      ),
+    );
+  }
+}
+
+class _SuccessCheckAnimate extends StatefulWidget {
+  final Color color;
+
+  const _SuccessCheckAnimate({required this.color});
+
+  @override
+  State<_SuccessCheckAnimate> createState() => _SuccessCheckAnimateState();
+}
+
+class _SuccessCheckAnimateState extends State<_SuccessCheckAnimate>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+  late final Animation<double> _opacity;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    final animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+
+    _scale = Tween<double>(begin: 0.6, end: 1.0).animate(animation);
+    _opacity = Tween<double>(begin: 0.0, end: 1.0).animate(animation);
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: ScaleTransition(
+        scale: _scale,
+        child: _SuccessCheck(color: widget.color),
       ),
     );
   }
@@ -52,11 +98,7 @@ class _SuccessCheck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 64,
-      height: 64,
-      child: CustomPaint(painter: _CheckPainter(circleColor: color)),
-    );
+    return CustomPaint(painter: _CheckPainter(circleColor: color));
   }
 }
 
@@ -100,15 +142,8 @@ class _FailedCross extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 64,
-      height: 64,
-      child: CustomPaint(
-        painter: _CrossPainter(
-          circleColor: circleColor,
-          crossColor: crossColor,
-        ),
-      ),
+    return CustomPaint(
+      painter: _CrossPainter(circleColor: circleColor, crossColor: crossColor),
     );
   }
 }
@@ -164,14 +199,11 @@ class _WaitingRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
-      dimension: 64,
-      child: CustomPaint(
-        painter: _WaitingRingPainter(
-          trackColor: trackColor,
-          progressColor: progressColor,
-          progress: progress,
-        ),
+    return CustomPaint(
+      painter: _WaitingRingPainter(
+        trackColor: trackColor,
+        progressColor: progressColor,
+        progress: progress,
       ),
     );
   }
