@@ -23,25 +23,25 @@ class StatusActionsSection extends StatelessWidget {
       ),
       PaymentFailed() => Column(
         mainAxisSize: MainAxisSize.min,
+        spacing: 18,
         children: [
           FCtaButton(
             label: 'Try again',
             variant: FCtaVariant.enabled,
             onPressed: () => _returnToHome(context),
           ),
-          const SizedBox(height: 18),
           FTextLink(label: 'Go back', onTap: () => _returnToHome(context)),
         ],
       ),
       _ => Column(
         mainAxisSize: MainAxisSize.min,
+        spacing: 18,
         children: [
           FCtaButton(
             label: 'Go to home',
             variant: FCtaVariant.enabled,
             onPressed: () => _returnToHome(context),
           ),
-          const SizedBox(height: 18),
           FTextLink(
             label: 'Check status again',
             onTap: () => _returnToHome(context),

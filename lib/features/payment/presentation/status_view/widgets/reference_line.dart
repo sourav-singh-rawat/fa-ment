@@ -1,3 +1,4 @@
+import 'package:fave/shared/constants/symbols.dart' show kInterPunctCharater;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class ReferenceLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '$formattedTimestamp · UPI ref $reference',
+      '$formattedTimestamp $kInterPunctCharater UPI ref $reference',
       style: context.text.recentStatus.copyWith(
         fontSize: 12.5,
         height: 17 / 12.5,

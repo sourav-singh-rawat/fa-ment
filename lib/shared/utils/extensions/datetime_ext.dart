@@ -1,3 +1,4 @@
+import 'package:fave/shared/constants/symbols.dart' show kInterPunctCharater;
 import 'package:intl/intl.dart' show DateFormat;
 
 extension DateTimeFormatting on DateTime {
@@ -30,7 +31,7 @@ extension DateTimeFormatting on DateTime {
       return format('EEE');
     }
 
-    return DateFormat('d · MM').format(this);
+    return DateFormat('d $kInterPunctCharater MM').format(this);
   }
 
   String get pulseFormattedTime {
@@ -41,9 +42,9 @@ extension DateTimeFormatting on DateTime {
       if (difference.inSeconds < 60) {
         return "Just now";
       } else if (difference.inMinutes < 60) {
-        return "${difference.inMinutes} m";
+        return "${difference.inMinutes} min";
       } else if (difference.inHours < 24) {
-        return "${difference.inHours} h";
+        return "${difference.inHours} hr";
       }
     }
 

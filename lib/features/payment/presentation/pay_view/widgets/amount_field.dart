@@ -1,4 +1,5 @@
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
+import 'package:fave/shared/utils/extensions/num_ext.dart';
 import 'package:fave/shared/widgets/selection_label.dart' show FSectionLabel;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter;
@@ -17,8 +18,8 @@ final class AmountValid extends AmountFieldState {
 }
 
 final class AmountBelowMinimum extends AmountFieldState {
-  final String rawDisplayValue;
-  const AmountBelowMinimum(this.rawDisplayValue);
+  final String formattedValue;
+  const AmountBelowMinimum(this.formattedValue);
 }
 
 final class AmountAboveLimit extends AmountFieldState {
@@ -71,9 +72,9 @@ class _AmountInputState extends State<AmountInput> {
 
   String _displayTextFor(AmountFieldState state) => switch (state) {
     AmountEmpty() => '',
-    AmountBelowMinimum(:final rawDisplayValue) => '₹$rawDisplayValue',
-    AmountValid(:final formattedValue) => '₹$formattedValue',
-    AmountAboveLimit(:final formattedValue) => '₹$formattedValue',
+    AmountBelowMinimum(:final formattedValue) => formattedValue,
+    AmountValid(:final formattedValue) => formattedValue,
+    AmountAboveLimit(:final formattedValue) => formattedValue,
   };
 
   void onChanged(String value) {
@@ -98,9 +99,9 @@ class _AmountInputState extends State<AmountInput> {
     };
 
     final String? errorText = switch (widget.state) {
-      AmountBelowMinimum() => 'Enter at least ₹1',
+      AmountBelowMinimum() => 'Enter at least ${1.formatIndianRupees}',
       AmountAboveLimit() =>
-        'UPI payments are capped at ₹1,00,000 per transaction',
+        'UPI payments are capped at ${100000.formatIndianRupees} per transaction',
       _ => null,
     };
 
@@ -118,7 +119,7 @@ class _AmountInputState extends State<AmountInput> {
           style: text.amountField,
           decoration: InputDecoration(
             isCollapsed: true,
-            hintText: '₹0',
+            hintText: 0.formatIndianRupees,
             hintStyle: text.amountField.copyWith(color: colors.mutedText),
             border: _defaultTransparentBoarder,
             errorBorder: _defaultTransparentBoarder,

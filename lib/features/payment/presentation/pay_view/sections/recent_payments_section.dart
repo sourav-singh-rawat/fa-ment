@@ -11,7 +11,7 @@ import 'package:fave/features/payment/presentation/widgets/inline_status_badge.d
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart'
     show AsyncState, AsyncSuccess, AsyncPartial;
-import 'package:fave/shared/utils/extensions/int_ext.dart';
+import 'package:fave/shared/utils/extensions/num_ext.dart' show NumX;
 import 'package:fave/shared/widgets/selection_label.dart' show FSectionLabel;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocSelector;

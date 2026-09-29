@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/annotations.dart' show RoutePage;
 import 'package:auto_route/auto_route.dart' show AutoRouterX;
 import 'package:fave/features/payment/application/payment_flow_coordinator/payment_flow_coordinator.dart'
@@ -14,7 +16,6 @@ import 'package:fave/features/payment/presentation/confirming_view/widgets/summa
 import 'package:fave/shared/modules/router/i.router.gr.dart'
     show PaymentStatusRoute;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
-import 'package:fave/shared/utils/extensions/int_ext.dart';
 import 'package:fave/shared/utils/extensions/num_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
@@ -49,10 +50,13 @@ class _SideEffects extends StatefulWidget {
 
 class _SideEffectsState extends State<_SideEffects>
     with WidgetsBindingObserver {
+  static late Completer<BuildContext> _progressCompleter;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _progressCompleter = Completer();
   }
 
   @override
@@ -80,8 +84,10 @@ class _SideEffectsState extends State<_SideEffects>
       listenWhen: (previous, current) {
         return current is PaymentFinalStatus && previous is! PaymentFinalStatus;
       },
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state case PaymentFinalStatus(:final payment)) {
+          context = await _progressCompleter.future;
+          if (!context.mounted) return;
           context.router.replace(PaymentStatusRoute(payment: payment));
         }
       },
@@ -131,7 +137,7 @@ class _Layout extends StatelessWidget {
 extension on Payment {
   String get summary {
     final recipient = SeededRecipients.byId(recipientId);
-    return '₹${amount.formatIndianRupees} to ${recipient.name}';
+    return '${amount.formatIndianRupees} to ${recipient.name}';
   }
 }
 
@@ -144,11 +150,10 @@ class _ConfirmingStatus extends StatelessWidget {
     final text = context.text;
 
     return Column(
+      spacing: 22,
       children: [
         const CountdownRing(),
-        22.toVerticalSizedBox,
         Text('Checking with your bank', style: text.confirmingHeading),
-        8.toVerticalSizedBox,
         Text(
           "This usually takes a few seconds.\nDon't close the app.",
           style: text.recentPayee.copyWith(
@@ -161,5 +166,13 @@ class _ConfirmingStatus extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+mixin PaymentConfirmNavigatorMixin {
+  void withdrawNavigationGuard(BuildContext context) {
+    final completer = _SideEffectsState._progressCompleter;
+    if (completer.isCompleted) return;
+    completer.complete(context);
   }
 }

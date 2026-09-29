@@ -10,6 +10,7 @@ import 'package:fave/features/payment/presentation/pay_view/widgets/backend_mode
     show BackendBehaviourSheet;
 import 'package:fave/features/payment/presentation/pay_view/widgets/top_bar.dart'
     show PayTopBar;
+import 'package:fave/shared/constants/symbols.dart' show kInterPunctCharater;
 import 'package:fave/shared/utils/async_state.dart' show AsyncLoading;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocSelector, ReadContext;
@@ -27,7 +28,7 @@ class PayHeaderSection extends StatelessWidget {
       builder: (context, data) {
         final modeDetails = SeededGatewayModes.byType(data.mode);
         return PayTopBar(
-          backendModeLabel: 'Backend · ${modeDetails.title}',
+          backendModeLabel: 'Backend $kInterPunctCharater ${modeDetails.title}',
           onDebugTap: data.isSending
               ? null
               : () => _showBackendSheet(context, data.mode),

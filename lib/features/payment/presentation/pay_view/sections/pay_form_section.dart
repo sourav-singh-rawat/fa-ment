@@ -18,7 +18,7 @@ import 'package:fave/features/payment/presentation/pay_view/widgets/recipient_sh
     show RecipientSheet;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart' show AsyncLoading;
-import 'package:fave/shared/utils/extensions/int_ext.dart';
+import 'package:fave/shared/utils/extensions/num_ext.dart' show NumX;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart' show BlocSelector, ReadContext;
 
@@ -120,15 +120,17 @@ class AmountFieldData {
       return AmountEmpty();
     }
 
+    final formatedAmount = amount.formatIndianRupees;
+
     if (amount < 1) {
-      return AmountBelowMinimum(amount.toString());
+      return AmountBelowMinimum(formatedAmount);
     }
 
     if (amount > 100000) {
-      return AmountAboveLimit(amount.formatIndianRupees);
+      return AmountAboveLimit(formatedAmount);
     }
 
-    return AmountValid(amount.formatIndianRupees);
+    return AmountValid(formatedAmount);
   }
 }
 

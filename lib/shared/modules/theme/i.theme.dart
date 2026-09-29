@@ -479,6 +479,7 @@ class FTextTokens extends ThemeExtension<FTextTokens> {
         lineHeight: 14,
         weight: FontWeight.w600,
         letterSpacing: 1.2,
+        color: colors.secondaryText,
       ),
       recipientName: style(
         fontSize: 15,

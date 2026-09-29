@@ -1,5 +1,6 @@
 import 'package:fave/features/payment/presentation/widgets/inline_status_badge.dart'
     show InlineBadgeKind, InlineStatusBadge;
+import 'package:fave/shared/constants/symbols.dart' show kInterPunctCharater;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/extensions/datetime_ext.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class RecentPaymentRow extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '$statusLine · ${createdAt.pulseFormattedTime.toLowerCase()}',
+                      '$statusLine $kInterPunctCharater ${createdAt.pulseFormattedTime.toLowerCase()}',
                       style: text.recentStatus,
                     ),
                     if (badge != null) ...[
@@ -62,7 +63,7 @@ class RecentPaymentRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           Text(
-            '₹$formattedAmount',
+            formattedAmount,
             style: text.recentAmount,
             maxLines: 1,
             overflow: TextOverflow.clip, // amount never truncates
