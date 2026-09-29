@@ -1,5 +1,5 @@
 import 'package:fave/features/payment/domain/entities/payment.dart'
-    show Payment, PaymentCharacters;
+    show Payment;
 import 'package:fave/features/payment/domain/entities/payment_status.dart'
     show
         PaymentStatus,
@@ -9,77 +9,31 @@ import 'package:fave/features/payment/domain/entities/payment_status.dart'
         PaymentUnresolved;
 import 'package:fave/features/payment/domain/payment_repository.dart'
     show PaymentRepository;
-import 'package:sqflite/sqflite.dart'
-    show Database, getDatabasesPath, openDatabase;
+import 'package:fave/shared/modules/storage/storage.dart' show Storage;
+import 'package:sqflite/sqflite.dart' show Database;
 
 part 'mapper/payment_sql_mapper.dart';
 part 'mapper/payment_status_sql_mapper.dart';
 
-//TODO: Create separate implementation of Sqlite
 class LocalPaymentRepositoryImpl implements PaymentRepository {
-  const LocalPaymentRepositoryImpl._();
+  LocalPaymentRepositoryImpl._(this._storage);
 
-  static final LocalPaymentRepositoryImpl _instance =
-      LocalPaymentRepositoryImpl._();
+  static LocalPaymentRepositoryImpl? _instance;
 
-  factory LocalPaymentRepositoryImpl() => _instance;
-
-  static Database? _databaseInstance;
-
-  @override
-  Future<List<Payment>> loadRecent() async {
-    final db = await database;
-    const orderBy = '${_PaymentCharacters.createdAt} DESC';
-    final result = await db.query(
-      _PaymentCharacters.tableName,
-      orderBy: orderBy,
-    );
-    return result.map((json) => _PaymentSqlMapper.fromData(json)).toList();
-  }
-
-  @override
-  Future<void> save(Payment payment) async {
-    final db = await database;
-    await db.insert(
-      _PaymentCharacters.tableName,
-      _PaymentSqlMapper.toData(payment),
+  factory LocalPaymentRepositoryImpl({Storage? storage}) {
+    return _instance ??= LocalPaymentRepositoryImpl._(
+      storage ??
+          Storage.sql(
+            tableName: _PaymentCharacters.tableName,
+            version: 1,
+            onCreateSchema: _createSchema,
+          ),
     );
   }
 
-  @override
-  Future<Payment?> get(String key) async {
-    final db = await database;
-    final result = await db.query(
-      _PaymentCharacters.tableName,
-      where: "id = ?",
-      whereArgs: [key],
-    );
-    if (result.isEmpty) return null;
-    return _PaymentSqlMapper.fromData(result.first);
-  }
+  final Storage _storage;
 
-  @override
-  Future<void> update(Payment payment) async {
-    final db = await database;
-    await db.update(
-      _PaymentCharacters.tableName,
-      _PaymentSqlMapper.toData(payment),
-      where: "id = ?",
-      whereArgs: [payment.id],
-    );
-  }
-
-  Future<Database> get database async {
-    return _databaseInstance ??= await _initDatabase();
-  }
-
-  Future<Database> _initDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = '$databasePath/${_PaymentCharacters.tableName}.db';
-    return await openDatabase(path, version: 1, onCreate: _createDatabase);
-  }
-
-  Future<void> _createDatabase(Database db, int version) async {
+  static Future<void> _createSchema(Database db, int version) async {
     await db.execute('''
         CREATE TABLE ${_PaymentCharacters.tableName} (
           ${_PaymentCharacters.id} TEXT PRIMARY KEY,
@@ -92,16 +46,35 @@ class LocalPaymentRepositoryImpl implements PaymentRepository {
           ${_PaymentCharacters.createdAt} TEXT NOT NULL
         )
       ''');
+  }
 
-    // await db.execute('''
-    //     CREATE TRIGGER rotate_two_rows
-    //     AFTER INSERT ON ${PaymentCharacters.tableName}
-    //     WHEN (SELECT COUNT(*) FROM ${PaymentCharacters.tableName}) > 2
-    //     BEGIN
-    //       DELETE FROM ${PaymentCharacters.tableName}
-    //       WHERE id = (SELECT MIN(sn) FROM ${PaymentCharacters.tableName});
-    //     END
-    // ''');
+  @override
+  Future<List<Payment>> loadRecent() async {
+    final result = await _storage.query(
+      orderBy: '${_PaymentCharacters.createdAt} DESC',
+    );
+    return result.map(_PaymentSqlMapper.fromData).toList();
+  }
+
+  @override
+  Future<void> save(Payment payment) async {
+    await _storage.insert(_PaymentSqlMapper.toData(payment));
+  }
+
+  @override
+  Future<Payment?> get(String key) async {
+    final result = await _storage.getById(key);
+    if (result == null) return null;
+    return _PaymentSqlMapper.fromData(result);
+  }
+
+  @override
+  Future<void> update(Payment payment) async {
+    await _storage.update(
+      _PaymentSqlMapper.toData(payment),
+      where: 'id = ?',
+      whereArgs: [payment.id],
+    );
   }
 }
 

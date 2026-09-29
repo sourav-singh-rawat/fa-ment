@@ -48,7 +48,7 @@ class PayCubit extends Cubit<PayState> {
         state.copyWith(transactions: AsyncState.success(data: transactions)),
       );
 
-      _updatePendingStatus(transactions);
+      await _updatePendingStatus(transactions);
     } catch (error) {
       emit(
         state.copyWith(
@@ -58,7 +58,7 @@ class PayCubit extends Cubit<PayState> {
     }
   }
 
-  void _updatePendingStatus(List<Payment> transactions) async {
+  Future<void> _updatePendingStatus(List<Payment> transactions) async {
     for (var i = 0; i < transactions.length; i++) {
       if (transactions[i].status is! PaymentPending) continue;
 
