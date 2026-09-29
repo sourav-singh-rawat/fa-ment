@@ -42,11 +42,18 @@ class PayCubit extends Cubit<PayState> {
   void fetchRecentTransactions() async {
     try {
       List<Payment> transactions = await _paymentRepository.loadRecent();
+      if (transactions.isEmpty) return;
+
       transactions = transactions.take(2).toList();
 
       emit(
-        state.copyWith(transactions: AsyncState.success(data: transactions)),
+        state.copyWith(
+          transactions: AsyncState.success(data: [...transactions]),
+        ),
       );
+
+      //dummy delay for better UX
+      await Future.delayed(const Duration(milliseconds: 1500));
 
       await _updatePendingStatus(transactions);
     } catch (error) {
@@ -59,8 +66,10 @@ class PayCubit extends Cubit<PayState> {
   }
 
   Future<void> _updatePendingStatus(List<Payment> transactions) async {
+    bool hasUpdate = false;
     for (var i = 0; i < transactions.length; i++) {
       if (transactions[i].status is! PaymentPending) continue;
+      hasUpdate = true;
 
       final status = await _paymentFlowCoordinator.requestStatus(
         transactions[i].id,
@@ -69,6 +78,8 @@ class PayCubit extends Cubit<PayState> {
       transactions[i] = transactions[i].copyWith(status: status);
       await _paymentFlowCoordinator.updatePaymentAttempt(transactions[i]);
     }
+
+    if (!hasUpdate) return;
 
     if (isClosed) return;
     emit(
