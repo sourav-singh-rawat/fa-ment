@@ -41,13 +41,17 @@ class PaymentFlowCoordinator {
 
   bool get hasTerminalStatus => _lastStatus?.isTerminal ?? false;
 
-  void dispose() {
-    _statusUpdatesSubscription?.cancel();
-    _scheduler.cancelAll();
-    _lastStatus = null;
-  }
-
   Stream<PaymentFlowEvent> get events => _paymentEvents.stream;
+
+  String _createTimeoutTaskId(String key) => 'create-timeout-$key';
+  String _pollTaskId(String key) => 'poll-$key';
+  String _deadlineTaskId(String key) => 'deadline-$key';
+
+  void dispose() {
+    _stopTracking();
+    _lastStatus = null;
+    _paymentEvents.close();
+  }
 
   void createPayment({
     required GatewayModeType backendMode,
@@ -64,11 +68,14 @@ class PaymentFlowCoordinator {
       note: note,
     );
 
+    _lastStatus = null;
+
     await _listenAsyncStatusUpdates(key);
 
-    _scheduler.scheduleOnce('create-timeout-$key', _createTimeout, () {
+    final timeoutId = _createTimeoutTaskId(key);
+    _scheduler.scheduleOnce(timeoutId, _createTimeout, () {
       _dispatchEvent(
-        CreateTimedOut(paymentAttempt, error: "Create payment timeout"),
+        CreateTimedOut(paymentAttempt, error: 'Create payment timeout'),
       );
     });
 
@@ -78,96 +85,101 @@ class PaymentFlowCoordinator {
       _gateway.mode = backendMode;
 
       final serverId = await _gateway.create(key);
-      _scheduler.cancel('create-timeout-$key');
 
       paymentAttempt = paymentAttempt.copyWith(serverId: serverId);
 
       _dispatchEvent(CreateSucceeded(paymentAttempt));
     } catch (error) {
-      _scheduler.cancel('create-timeout-$key');
       _dispatchEvent(CreateTimedOut(paymentAttempt, error: error.toString()));
+    } finally {
+      _scheduler.cancel(timeoutId);
     }
   }
 
-  Future<PaymentStatus> requestStatus(String key) async {
-    final status = await _gateway.status(key);
-    return status;
-  }
+  Future<PaymentStatus> requestStatus(String key) => _gateway.status(key);
 
-  void waitAndConfirmStatus(String key, DateTime deadline) async {
+  Future<void> waitAndConfirmStatus(String key, DateTime deadline) async {
     final remaining = deadline.difference(DateTime.now());
 
     if (remaining <= Duration.zero) {
-      _dispatchEvent(ConfirmingDeadlineReached());
+      _reachDeadline();
       return;
     }
 
     _scheduleDeadline(key, remaining);
 
-    final status = await requestStatus(key);
-    _dispatchPaymentStatus(key, status);
+    await _checkStatus(key);
 
-    if (_pollInterval > remaining) return;
+    if (hasTerminalStatus || _pollInterval > remaining) return;
 
     _schedulePolling(key);
   }
 
-  void onAppBackground() {
-    _scheduler.cancelAll();
-    _statusUpdatesSubscription?.cancel();
-  }
+  void onAppBackground() => _stopTracking();
 
   void onAppResumed(String key, DateTime deadline) async {
     await _listenAsyncStatusUpdates(key);
-    waitAndConfirmStatus(key, deadline);
+    await waitAndConfirmStatus(key, deadline);
   }
 
-  Future<void> savePaymentAttempt(Payment attempt) {
-    return _repository.save(attempt);
-  }
+  Future<void> savePaymentAttempt(Payment attempt) => _repository.save(attempt);
 
-  Future<void> updatePaymentAttempt(Payment attempt) {
-    return _repository.update(attempt);
+  Future<void> updatePaymentAttempt(Payment attempt) =>
+      _repository.update(attempt);
+
+  Future<void> _checkStatus(String key) async {
+    final status = await requestStatus(key);
+    _dispatchPaymentStatus(status);
   }
 
   void _schedulePolling(String key) {
-    _scheduler.schedulePeriodic('poll-$key', _pollInterval, () async {
+    final pollId = _pollTaskId(key);
+
+    _scheduler.schedulePeriodic(pollId, _pollInterval, () async {
       if (hasTerminalStatus) {
-        _scheduler.cancel('poll-$key');
+        _scheduler.cancel(pollId);
         return;
       }
 
-      final status = await requestStatus(key);
-      _dispatchPaymentStatus(key, status);
+      await _checkStatus(key);
     });
   }
 
   void _scheduleDeadline(String key, Duration duration) {
-    _scheduler.scheduleOnce('deadline-$key', duration, () {
-      _dispatchEvent(ConfirmingDeadlineReached());
-    });
+    _scheduler.scheduleOnce(_deadlineTaskId(key), duration, _reachDeadline);
+  }
+
+  void _reachDeadline() {
+    _dispatchEvent(ConfirmingDeadlineReached());
+    _stopTracking();
   }
 
   Future<void> _listenAsyncStatusUpdates(String key) async {
     await _statusUpdatesSubscription?.cancel();
+
     _statusUpdatesSubscription = _gateway.updates.listen((data) {
-      if (hasTerminalStatus) {
-        _statusUpdatesSubscription?.cancel();
-        return;
-      }
+      if (data.$1 != key || hasTerminalStatus) return;
 
       if (data.$1 != key) return;
-      _dispatchPaymentStatus(key, data.$2);
+
+      _dispatchPaymentStatus(data.$2);
     });
   }
 
-  void _dispatchPaymentStatus(String key, PaymentStatus status) async {
+  void _dispatchPaymentStatus(PaymentStatus status) async {
+    if (hasTerminalStatus) return;
+
     _lastStatus = status;
     if (!status.isTerminal) return;
 
     _dispatchEvent(TerminalStatus(status));
+    _stopTracking();
+  }
+
+  void _stopTracking() {
     _scheduler.cancelAll();
     _statusUpdatesSubscription?.cancel();
+    _statusUpdatesSubscription = null;
   }
 
   void _dispatchEvent(PaymentFlowEvent event) {
