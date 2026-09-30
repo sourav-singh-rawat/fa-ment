@@ -23,8 +23,8 @@ class PayActionSection extends StatelessWidget {
 
         final fieldState = AmountFieldData.toAmountFieldState(s.amount);
         final data = switch (fieldState) {
-          AmountValid(:final formattedValue) => _Data(
-            'Pay $formattedValue',
+          AmountValid() => _Data(
+            'Pay ${fieldState.formattedValue}',
             FCtaVariant.enabled,
           ),
           _ => _Data('Pay', FCtaVariant.disabled),

@@ -2,29 +2,32 @@ import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/extensions/num_ext.dart';
 import 'package:fave/shared/widgets/selection_label.dart' show FSectionLabel;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show FilteringTextInputFormatter;
+import 'package:flutter/services.dart' show TextInputFormatter;
 
 sealed class AmountFieldState {
-  const AmountFieldState();
+  final int value;
+  const AmountFieldState(this.value);
+
+  String get formattedValue => value.formatIndianRupees;
 }
 
 final class AmountEmpty extends AmountFieldState {
-  const AmountEmpty();
+  const AmountEmpty() : super(0);
+
+  @override
+  String get formattedValue => '';
 }
 
 final class AmountValid extends AmountFieldState {
-  final String formattedValue;
-  const AmountValid(this.formattedValue);
+  const AmountValid(super.value);
 }
 
 final class AmountBelowMinimum extends AmountFieldState {
-  final String formattedValue;
-  const AmountBelowMinimum(this.formattedValue);
+  const AmountBelowMinimum(super.value);
 }
 
 final class AmountAboveLimit extends AmountFieldState {
-  final String formattedValue;
-  const AmountAboveLimit(this.formattedValue);
+  const AmountAboveLimit(super.value);
 }
 
 class AmountInput extends StatefulWidget {
@@ -44,24 +47,34 @@ class AmountInput extends StatefulWidget {
 }
 
 class _AmountInputState extends State<AmountInput> {
+  static const _formatter = _IndianRupeeInputFormatter();
   late final TextEditingController _controller;
+
+  int? _amountOf(AmountFieldState s) => s is AmountEmpty ? null : s.value;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController(text: _displayTextFor(widget.state));
+    _controller = TextEditingController(text: widget.state.formattedValue);
   }
 
   @override
   void didUpdateWidget(AmountInput oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final externalText = _displayTextFor(widget.state);
-    if (externalText != _controller.text) {
-      _controller.value = TextEditingValue(
-        text: externalText,
-        selection: TextSelection.collapsed(offset: externalText.length),
-      );
+    if (_IndianRupeeInputFormatter.parse(_controller.text) ==
+        _amountOf(widget.state)) {
+      return;
     }
+    final text = widget.state.formattedValue;
+    _controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  void onChanged(String value) {
+    final amount = _IndianRupeeInputFormatter.parse(value) ?? 0;
+    widget.onChanged(amount);
   }
 
   @override
@@ -70,31 +83,13 @@ class _AmountInputState extends State<AmountInput> {
     super.dispose();
   }
 
-  String _displayTextFor(AmountFieldState state) => switch (state) {
-    AmountEmpty() => '',
-    AmountBelowMinimum(:final formattedValue) => formattedValue,
-    AmountValid(:final formattedValue) => formattedValue,
-    AmountAboveLimit(:final formattedValue) => formattedValue,
-  };
-
-  void onChanged(String value) {
-    final amount = int.tryParse(value);
-    if (amount == null) {
-      _controller.text = '';
-      return;
-    }
-
-    widget.onChanged(amount);
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = context.text;
 
     final Color underlineColor = switch (widget.state) {
-      AmountEmpty() => const Color(0xFFE7DFD4),
-      AmountValid() => colors.fieldUnderline,
+      AmountEmpty() || AmountValid() => colors.fieldUnderline,
       AmountBelowMinimum() || AmountAboveLimit() => colors.errorUnderline,
     };
 
@@ -114,7 +109,7 @@ class _AmountInputState extends State<AmountInput> {
           enabled: widget.enabled,
           controller: _controller,
           keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: const [_formatter],
           onChanged: onChanged,
           style: text.amountField,
           decoration: InputDecoration(
@@ -141,3 +136,55 @@ class _AmountInputState extends State<AmountInput> {
 const _defaultTransparentBoarder = UnderlineInputBorder(
   borderSide: BorderSide(color: Colors.transparent, width: 0),
 );
+
+const _safeMaxDigits = 9;
+
+class _IndianRupeeInputFormatter extends TextInputFormatter {
+  const _IndianRupeeInputFormatter();
+
+  static final _nonDigit = RegExp(r'\D');
+  static final _digit = RegExp(r'\d');
+
+  static int? parse(String text) {
+    final digits = text.replaceAll(_nonDigit, '');
+    return digits.isEmpty ? null : int.tryParse(digits);
+  }
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final digits = newValue.text.replaceAll(_nonDigit, '');
+    if (digits.isEmpty) return TextEditingValue.empty;
+    if (digits.length > _safeMaxDigits) return oldValue;
+
+    final amount = int.parse(digits);
+    final formatted = amount.formatIndianRupees;
+
+    final leadingZeros = digits.length - amount.toString().length;
+    final caret = newValue.selection.baseOffset.clamp(0, newValue.text.length);
+    var digitsBeforeCaret =
+        newValue.text.substring(0, caret).replaceAll(_nonDigit, '').length -
+        leadingZeros;
+    if (digitsBeforeCaret < 0) digitsBeforeCaret = 0;
+
+    var offset = formatted.length;
+    if (digitsBeforeCaret == 0) {
+      offset = formatted.indexOf(_digit);
+    } else {
+      var seen = 0;
+      for (var i = 0; i < formatted.length; i++) {
+        if (_digit.hasMatch(formatted[i]) && ++seen == digitsBeforeCaret) {
+          offset = i + 1;
+          break;
+        }
+      }
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: offset),
+    );
+  }
+}
