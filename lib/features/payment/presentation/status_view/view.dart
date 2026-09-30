@@ -5,7 +5,7 @@ import 'package:fave/features/payment/presentation/status_view/sections/status_a
     show StatusActionsSection;
 import 'package:fave/features/payment/presentation/status_view/sections/status_center_section.dart'
     show StatusCenterSection;
-import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
+import 'package:fave/shared/widgets/view_wapper.dart' show FView;
 import 'package:flutter/material.dart';
 
 @RoutePage()
@@ -15,20 +15,14 @@ class PaymentStatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.screenBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: context.layout.screenPadding,
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(child: StatusCenterSection(payment: payment)),
-              ),
-              StatusActionsSection(payment: payment),
-            ],
+    return FView(
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(child: StatusCenterSection(payment: payment)),
           ),
-        ),
+          StatusActionsSection(payment: payment),
+        ],
       ),
     );
   }

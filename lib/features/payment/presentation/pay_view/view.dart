@@ -24,6 +24,7 @@ import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/async_state.dart'
     show AsyncSuccess, AsyncFailure, AsyncPartial;
 import 'package:fave/shared/utils/async_state.dart';
+import 'package:fave/shared/widgets/view_wapper.dart' show FView;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
     show BlocProvider, ReadContext, BlocListener;
@@ -50,24 +51,18 @@ class _PayLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final layout = context.layout;
-    return Scaffold(
-      backgroundColor: context.colors.screenBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: layout.screenPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const PayHeaderSection(),
-              SizedBox(height: layout.payBlockGap),
-              const PayFormSection(),
-              SizedBox(height: layout.payBlockGap),
-              const RecentPaymentsSection(),
-              const Spacer(),
-              const PayActionSection(),
-            ],
-          ),
-        ),
+    return FView(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const PayHeaderSection(),
+          SizedBox(height: layout.payBlockGap),
+          const PayFormSection(),
+          SizedBox(height: layout.payBlockGap),
+          const RecentPaymentsSection(),
+          const Spacer(),
+          const PayActionSection(),
+        ],
       ),
     );
   }

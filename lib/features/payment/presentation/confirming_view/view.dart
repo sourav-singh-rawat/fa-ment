@@ -17,6 +17,7 @@ import 'package:fave/shared/modules/router/i.router.gr.dart'
     show PaymentStatusRoute;
 import 'package:fave/shared/modules/theme/theme.dart' show FThemeContext;
 import 'package:fave/shared/utils/extensions/num_ext.dart';
+import 'package:fave/shared/widgets/view_wapper.dart' show FView;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'
     show BlocProvider, BlocListener, ReadContext;
@@ -101,34 +102,25 @@ class _Layout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final layout = context.layout;
-    final colors = context.colors;
     final text = context.text;
+    final amountAndRecipientSummary = context
+        .read<PaymentConfirmCubit>()
+        .paymentAttempt
+        .summary;
 
-    return Scaffold(
-      backgroundColor: colors.screenBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: layout.screenPadding,
-          child: Column(
-            children: [
-              SummaryStrip(
-                amountAndRecipientSummary: context
-                    .read<PaymentConfirmCubit>()
-                    .paymentAttempt
-                    .summary,
-              ),
-              const Spacer(),
-              const _ConfirmingStatus(),
-              const Spacer(),
-              Text(
-                "Don't pay again — we'll confirm one way or the other.",
-                style: text.recentStatus,
-                textAlign: TextAlign.center,
-              ),
-            ],
+    return FView(
+      body: Column(
+        children: [
+          SummaryStrip(amountAndRecipientSummary: amountAndRecipientSummary),
+          const Spacer(),
+          const _ConfirmingStatus(),
+          const Spacer(),
+          Text(
+            "Don't pay again — we'll confirm one way or the other.",
+            style: text.recentStatus,
+            textAlign: TextAlign.center,
           ),
-        ),
+        ],
       ),
     );
   }
